@@ -1,0 +1,39 @@
+services:
+  db:
+    image: mysql:latest
+    container_name: assignment_manager_container
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u ${MYSQL_USER} --password=${MYSQL_PASSWORD}"]
+      interval: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: assignment_manager_phpmyadmin_container
+    env_file:
+      - .env
+    ports:
+      - "${PHPMYADMIN_PORT}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - PMA_HOST=db
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - phpmyadmin_data:/var/lib/phpmyadmin
+
+volumes:
+  mysql_data:
+  phpmyadmin_data:
