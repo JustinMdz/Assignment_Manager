@@ -20,11 +20,6 @@ public class File {
     private String filePath;
 
     @ManyToOne
-    @JoinColumn(name = "uploaded_by")
-    private User uploadedBy;
-
-    @ManyToOne
-    @JoinColumn(name = "assignment_id")
-    private Assignment assignment;
-
+    @JoinColumn(name = "id_submission")
+    private Submission submission;
 }

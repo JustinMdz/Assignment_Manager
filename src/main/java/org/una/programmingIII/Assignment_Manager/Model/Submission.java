@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,7 +26,9 @@ public class Submission {
     @JoinColumn(name = "student_id")
     private User student;
 
-    private String filePath;
+    @OneToMany(mappedBy = "submission")
+    private List<File> files;
+
     private LocalDateTime createdAt;
 
     @ManyToOne

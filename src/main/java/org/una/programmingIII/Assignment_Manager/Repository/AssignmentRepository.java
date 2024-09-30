@@ -2,8 +2,8 @@ package org.una.programmingIII.Assignment_Manager.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.una.programmingIII.Assignment_Manager.Model.File;
+import org.una.programmingIII.Assignment_Manager.Model.Assignment;
+
 @Repository
-public interface FileRepository extends JpaRepository<File, Long> {
-    File findBySubmissionId(Long id);
+public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 }

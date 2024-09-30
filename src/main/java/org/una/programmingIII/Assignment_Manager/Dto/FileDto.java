@@ -12,7 +12,6 @@ public class FileDto {
     private String name;
     private Long fileSize;
     private String filePath;
-    private UserDto uploadedBy;
-    private AssignmentDto assignment;
+    private SubmissionDto submission;
 
 }
