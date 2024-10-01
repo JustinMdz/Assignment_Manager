@@ -5,6 +5,7 @@ import lombok.Data;
 
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 
 @Entity
@@ -31,8 +32,13 @@ public class User {
     @Column(nullable = false, unique = true)
     private String identificationNumber;
 
-    @Enumerated(EnumType.STRING)
-    private UserRoleState role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_permissions",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<Permission> permissions;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
