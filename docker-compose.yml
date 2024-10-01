@@ -1,39 +1,39 @@
+version: '3.8'
+
 services:
-  db:
-    image: mysql:latest
-    container_name: mysql_assignment_manager_container
+  postgres:
+    image: postgres:16.4
     env_file:
       - .env
     ports:
-      - "3306:3307"
+      - "6000:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PGDATA=${PGDATA}
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u ${MYSQL_USER} --password=${MYSQL_PASSWORD}"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
       retries: 5
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: phpmyadmin_assignment_manager_container
+  pgadmin:
+    image: dpage/pgadmin4
     env_file:
       - .env
     ports:
-      - "${PHPMYADMIN_PORT}:80"
+      - "5051:80"
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
     environment:
-      - PMA_HOST=db
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     volumes:
-      - phpmyadmin_data:/var/lib/phpmyadmin
+      - pgadmin_data:/var/lib/pgadmin
 
 volumes:
-  mysql_data:
-  phpmyadmin_data:
+  postgres_data:
+  pgadmin_data:
