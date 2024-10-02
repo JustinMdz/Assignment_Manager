@@ -66,12 +66,14 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public Optional<UserDto> updateUser(Long id, UserDto userDTO) {
+    public Optional<UserDto> updateUser(Long id, UserInput userInput) {
         return userRepository.findById(id)
                 .map(existingUser -> {
-                    User updatedUser = userMapper.convertToEntity(userDTO);
+                    User updatedUser = userInputMapper.convertToEntity(userInput);
                     updatedUser.setId(id);
                     updatedUser.setCreatedAt(existingUser.getCreatedAt());
+                    updatedUser.setLastUpdate(existingUser.getLastUpdate());
+                    updatedUser.setPassword(passwordEncryptionService.encodePassword(userInput.getPassword()));
 
                     User savedUser = userRepository.save(updatedUser);
                     return Optional.of(userMapper.convertToDTO(savedUser));
@@ -83,16 +85,6 @@ public class UserServiceImplementation implements UserService {
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
-    }
-
-    @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    @Override
-    public void updateUser(User user) {
-        userRepository.save(user);
     }
 
     private boolean checkImportantSpaces(UserInput userInput) {

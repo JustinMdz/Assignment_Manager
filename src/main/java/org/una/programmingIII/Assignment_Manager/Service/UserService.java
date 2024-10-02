@@ -14,12 +14,8 @@ public interface UserService {
 
     UserDto createUser(UserInput userInput);
 
-    Optional<UserDto> updateUser(Long id, UserDto userDTO);
+    Optional<UserDto> updateUser(Long id, UserInput userInput);
 
     void deleteUser(Long id);
-
-    User findByEmail(String email);
-
-    void updateUser(User user);
 
 }
