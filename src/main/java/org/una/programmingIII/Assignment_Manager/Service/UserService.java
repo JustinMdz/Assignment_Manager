@@ -1,5 +1,6 @@
 package org.una.programmingIII.Assignment_Manager.Service;
 
+import org.una.programmingIII.Assignment_Manager.Dto.Input.UserInput;
 import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
 import org.una.programmingIII.Assignment_Manager.Model.User;
 
@@ -11,7 +12,7 @@ public interface UserService {
 
     Optional<UserDto> getUserByEmail(String email);
 
-    UserDto createUser(UserDto userDTO);
+    UserDto createUser(UserInput userInput);
 
     Optional<UserDto> updateUser(Long id, UserDto userDTO);
 

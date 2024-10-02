@@ -14,7 +14,7 @@ import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import java.util.Optional;
 
 @Service
-public class CourseServiceImplementation implements CourseService {
+public class    CourseServiceImplementation implements CourseService {
 
     @Autowired
     private CourseRepository courseRepository;
