@@ -4,11 +4,16 @@ import org.una.programmingIII.Assignment_Manager.Dto.SubmissionDto;
 import org.una.programmingIII.Assignment_Manager.Model.Submission;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface SubmissionService {
     void deleteById(Long id);
-    SubmissionDto findById(Long id);
-    SubmissionDto create(Submission submission);
-    SubmissionDto update(Submission submission);
+
+    Optional<SubmissionDto> findById(Long id);
+
+    SubmissionDto create(SubmissionDto submissionDto);
+
+    Optional<SubmissionDto> update(Long id, SubmissionDto submissionDto);
+
     Map<String, Object> getAllSubmissions(int page, int size);
 }

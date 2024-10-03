@@ -8,10 +8,11 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.una.programmingIII.Assignment_Manager.Model.User;
+import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -19,7 +20,7 @@ public class JWTService {
 
     private final Key key;
     private final long accessTokenExpiration;
-    private final long resetPasswordExpiration=15*60*1000;
+    private final long resetPasswordExpiration = 15 * 60 * 1000;
     private final long refreshTokenExpiration;
 
     @Autowired
@@ -31,16 +32,16 @@ public class JWTService {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String generateAccessToken(User user) {
+    public String generateAccessToken(Optional<UserDto> user) {
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .setSubject(user.get().getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
 
-    public String generateRefreshToken(User user) {
+    public String generateRefreshToken(UserDto user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date())

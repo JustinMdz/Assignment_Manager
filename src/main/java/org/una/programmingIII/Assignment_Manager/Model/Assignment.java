@@ -1,10 +1,14 @@
 package org.una.programmingIII.Assignment_Manager.Model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDate;
 
+
 @Entity
+@Table(name = "assignments")
+@Data
 public class Assignment {
 
     @Id

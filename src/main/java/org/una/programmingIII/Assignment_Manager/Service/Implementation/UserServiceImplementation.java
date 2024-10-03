@@ -37,7 +37,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUsers() {//revisaar si hay que hacer paginacion aca
+    public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::convertToDTO)
                 .collect(Collectors.toList());
