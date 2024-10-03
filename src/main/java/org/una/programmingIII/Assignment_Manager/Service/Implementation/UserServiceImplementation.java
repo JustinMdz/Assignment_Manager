@@ -1,6 +1,9 @@
 package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.una.programmingIII.Assignment_Manager.Dto.Input.UserInput;
 import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
@@ -15,8 +18,7 @@ import org.una.programmingIII.Assignment_Manager.Service.UserService;
 
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +43,22 @@ public class UserServiceImplementation implements UserService {
         return userRepository.findAll().stream()
                 .map(userMapper::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Object> getUsers(int page, int size, int limit) {
+        Page<User> userPage = userRepository.findAll(PageRequest.of(page, size));
+        Map<String, Object> response = new HashMap<>();
+        response.put("universities", userPage.map(this::convertToDto).getContent());
+        response.put("totalPages", userPage.getTotalPages());
+        response.put("totalElements", userPage.getTotalElements());
+        return response;
+    }
+
+    @Override
+    public Page<UserDto> getPaseUsers(Pageable pageable) {
+        Page<User> userDtoPage = userRepository.findAll(pageable);
+        return userDtoPage.map(userMapper::convertToDTO);
     }
 
     @Override
@@ -90,4 +108,17 @@ public class UserServiceImplementation implements UserService {
     private boolean checkImportantSpaces(UserInput userInput) {
         return userInput.getName().isBlank() || userInput.getEmail().isBlank() || userInput.getPassword().isBlank();
     }
+
+    private <T> List<T> limitListOrDefault(List<T> list, int limit) {
+        return list == null ? new ArrayList<>() : limitList(list, limit);
+    }
+
+    private <T> List<T> limitList(List<T> list, int limit) {
+        return list.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    private UserDto convertToDto(User user) {
+        return userMapper.convertToDTO(user);
+    }
+
 }

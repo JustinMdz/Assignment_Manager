@@ -1,7 +1,8 @@
 package org.una.programmingIII.Assignment_Manager.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.una.programmingIII.Assignment_Manager.Dto.SubmissionDto;
-import org.una.programmingIII.Assignment_Manager.Model.Submission;
 
 import java.util.Map;
 import java.util.Optional;
@@ -15,5 +16,7 @@ public interface SubmissionService {
 
     Optional<SubmissionDto> update(Long id, SubmissionDto submissionDto);
 
-    Map<String, Object> getAllSubmissions(int page, int size);
+    Map<String, Object> getSubmissions(int page, int size, int limit);
+
+    Page<SubmissionDto> getPageSubmissions(Pageable pageable);
 }

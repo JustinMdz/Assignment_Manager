@@ -1,10 +1,18 @@
 package org.una.programmingIII.Assignment_Manager.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.una.programmingIII.Assignment_Manager.Dto.AssignmentDto;
 
+import java.util.Map;
 import java.util.Optional;
 
 public interface AssignmentService {
+
+    Map<String, Object> getAssignments(int page, int size, int limit);
+
+    Page<AssignmentDto> getPageAssignment(Pageable pageable);
+
     AssignmentDto findById(Long id);
 
     AssignmentDto create(AssignmentDto assignment);

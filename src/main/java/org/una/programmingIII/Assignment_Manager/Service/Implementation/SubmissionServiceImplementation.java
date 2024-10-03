@@ -4,6 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.una.programmingIII.Assignment_Manager.Dto.SubmissionDto;
@@ -16,8 +19,8 @@ import org.una.programmingIII.Assignment_Manager.Model.University;
 import org.una.programmingIII.Assignment_Manager.Repository.SubmissionRepository;
 import org.una.programmingIII.Assignment_Manager.Service.SubmissionService;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -64,7 +67,36 @@ public class SubmissionServiceImplementation implements SubmissionService {
     }
 
     @Override
-    public Map<String, Object> getAllSubmissions(int page, int size) {
-        return null;
+    public Map<String, Object> getSubmissions(int page, int size, int limit) {
+        Page<Submission> submissionPage = submissionRepository.findAll(PageRequest.of(page, size));
+        submissionPage.forEach(submission -> {
+            submission.setFiles(limitListOrDefault(submission.getFiles(), limit));
+        });
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("submissions", submissionPage.map(this::convertToDto).getContent());
+        response.put("totalPages", submissionPage.getTotalPages());
+        response.put("totalElements", submissionPage.getTotalElements());
+        return response;
     }
+
+
+    @Override
+    public Page<SubmissionDto> getPageSubmissions(Pageable pageable) {
+        Page<Submission> submissionPage = submissionRepository.findAll(pageable);
+        return submissionPage.map(submissionMapper::convertToDTO);
+    }
+
+    private <T> List<T> limitListOrDefault(List<T> list, int limit) {
+        return list == null ? new ArrayList<>() : limitList(list, limit);
+    }
+
+    private <T> List<T> limitList(List<T> list, int limit) {
+        return list.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    private SubmissionDto convertToDto(Submission submission) {
+        return submissionMapper.convertToDTO(submission);
+    }
+
 }

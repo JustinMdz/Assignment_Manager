@@ -2,8 +2,10 @@ package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.una.programmingIII.Assignment_Manager.Dto.DepartmentDto;
 import org.una.programmingIII.Assignment_Manager.Dto.FacultyDto;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
@@ -11,8 +13,7 @@ import org.una.programmingIII.Assignment_Manager.Model.Faculty;
 import org.una.programmingIII.Assignment_Manager.Repository.FacultyRepository;
 import org.una.programmingIII.Assignment_Manager.Service.FacultyService;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +21,7 @@ public class FacultyServiceImplementation implements FacultyService {
     @Autowired
     private FacultyRepository facultyRepository;
     private final GenericMapper<Faculty, FacultyDto> facultyMapper;
+
 
     public FacultyServiceImplementation(GenericMapperFactory mapperFactory) {
         this.facultyMapper = mapperFactory.createMapper(Faculty.class, FacultyDto.class);
@@ -37,6 +39,26 @@ public class FacultyServiceImplementation implements FacultyService {
         return facultyRepository.findAll().stream()
                 .map(facultyMapper::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Object> getFaculties(int page, int size, int limit) {
+        Page<Faculty> facultyPage = facultyRepository.findAll(PageRequest.of(page, size));
+        facultyPage.forEach(faculty -> {
+            faculty.setDepartments(limitListOrDefault(faculty.getDepartments(), limit));
+        });
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("faculties", facultyPage.map(this::convertToDto).getContent());
+        response.put("totalPages", facultyPage.getTotalPages());
+        response.put("totalElements", facultyPage.getTotalElements());
+        return response;
+    }
+
+    @Override
+    public Page<FacultyDto> getPageFaculty(Pageable pageable) {
+        Page<Faculty> facultyPage = facultyRepository.findAll(pageable);
+        return facultyPage.map(facultyMapper::convertToDTO);
     }
 
     @Override
@@ -64,5 +86,17 @@ public class FacultyServiceImplementation implements FacultyService {
         } else {
             throw new EntityNotFoundException("Faculty not found with id " + id);
         }
+    }
+
+    private <T> List<T> limitListOrDefault(List<T> list, int limit) {
+        return list == null ? new ArrayList<>() : limitList(list, limit);
+    }
+
+    private <T> List<T> limitList(List<T> list, int limit) {
+        return list.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    private FacultyDto convertToDto(Faculty faculty) {
+        return facultyMapper.convertToDTO(faculty);
     }
 }

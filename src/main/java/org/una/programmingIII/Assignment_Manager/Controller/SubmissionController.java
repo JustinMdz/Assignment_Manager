@@ -1,16 +1,18 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.una.programmingIII.Assignment_Manager.Dto.SubmissionDto;
-import org.una.programmingIII.Assignment_Manager.Dto.UniversityDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Service.SubmissionService;
 
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -21,12 +23,20 @@ public class SubmissionController {
     @Autowired
     private SubmissionService submissionService;
 
+    @GetMapping("getMap")
+    public ResponseEntity<Map<String, Object>> getSubmissions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int limit) {
+        Map<String, Object> response = submissionService.getSubmissions(page, size, limit);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-//    @GetMapping("getAllUniversities")
-//    public ResponseEntity<List<UniversityDto>> getAllUniversities() {
-//        List<UniversityDto> universities = submissionService.getAllSubmissions();
-//        return new ResponseEntity<>(universities, HttpStatus.OK);
-//    }
+    @GetMapping("getPageable")
+    public Page<SubmissionDto> getSubmissions(Pageable pageable) {
+        return submissionService.getPageSubmissions(pageable);
+    }
+
 
     @GetMapping("/getById")
     public ResponseEntity<?> getSubmissionById(@RequestParam Long id) {

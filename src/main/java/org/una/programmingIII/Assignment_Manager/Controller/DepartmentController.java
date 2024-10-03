@@ -1,16 +1,20 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.una.programmingIII.Assignment_Manager.Dto.DepartmentDto;
+import org.una.programmingIII.Assignment_Manager.Dto.UniversityDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Service.DepartmentService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -24,6 +28,21 @@ public class DepartmentController {
         List<DepartmentDto> universities = departmentService.getAllDepartments();
         return new ResponseEntity<>(universities, HttpStatus.OK);
     }
+
+    @GetMapping("getMap")
+    public ResponseEntity<Map<String, Object>> getDepartments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int limit) {
+        Map<String, Object> response = departmentService.getDepartments(page, size, limit);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("getPageable")
+    public Page<DepartmentDto> getDepartments(Pageable pageable) {
+        return departmentService.getPageDepartments(pageable);
+    }
+
 
     @GetMapping("/getById")
     public ResponseEntity<?> getDepartmentById(@RequestParam Long id) {
