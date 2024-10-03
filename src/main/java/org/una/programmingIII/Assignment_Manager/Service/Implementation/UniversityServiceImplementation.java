@@ -3,14 +3,20 @@ package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.una.programmingIII.Assignment_Manager.Dto.Input.UserInput;
 import org.una.programmingIII.Assignment_Manager.Dto.UniversityDto;
+import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
+import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Model.University;
+import org.una.programmingIII.Assignment_Manager.Model.User;
 import org.una.programmingIII.Assignment_Manager.Repository.UniversityRepository;
 import org.una.programmingIII.Assignment_Manager.Service.UniversityService;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UniversityServiceImplementation implements UniversityService {
@@ -31,23 +37,29 @@ public class UniversityServiceImplementation implements UniversityService {
     }
 
     @Override
+    public List<UniversityDto> getAllUniversities() {
+        return universityRepository.findAll().stream()
+                .map(universityMapper::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<UniversityDto> getById(Long id) {
         return universityRepository.findById(id)
                 .map(universityMapper::convertToDTO);
     }
 
     @Override
-    public UniversityDto update(Long id, UniversityDto universityDto) {
+    public Optional<UniversityDto> update(Long id, UniversityDto universityDto) {
         return universityRepository.findById(id)
                 .map(existingUniversity -> {
                     University updatedUniversity = universityMapper.convertToEntity(universityDto);
                     updatedUniversity.setId(id);
                     University savedUniversity = universityRepository.save(updatedUniversity);
-                    return universityMapper.convertToDTO(savedUniversity);
+                    return Optional.of(universityMapper.convertToDTO(savedUniversity));
                 })
                 .orElseThrow(() -> new EntityNotFoundException("University not found with id " + id));
     }
-
 
     @Override
     public void delete(Long id) {

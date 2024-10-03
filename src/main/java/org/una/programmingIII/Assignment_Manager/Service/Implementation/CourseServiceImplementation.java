@@ -3,6 +3,7 @@ package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.una.programmingIII.Assignment_Manager.Dto.CourseDto;
+import org.una.programmingIII.Assignment_Manager.Dto.FacultyDto;
 import org.una.programmingIII.Assignment_Manager.Model.Course;
 import org.una.programmingIII.Assignment_Manager.Repository.CourseRepository;
 import org.una.programmingIII.Assignment_Manager.Service.CourseService;
@@ -11,7 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseServiceImplementation implements CourseService {
@@ -32,19 +35,26 @@ public class CourseServiceImplementation implements CourseService {
     }
 
     @Override
+    public List<CourseDto> getAllCourses() {
+        return courseRepository.findAll().stream()
+                .map(courseMapper::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<CourseDto> getById(Long id) {
         return courseRepository.findById(id)
                 .map(courseMapper::convertToDTO);
     }
 
     @Override
-    public CourseDto update(Long id, CourseDto courseDto) {
+    public Optional<CourseDto> update(Long id, CourseDto courseDto) {
         return courseRepository.findById(id)
                 .map(existingCourse -> {
                     Course updatedCourse = courseMapper.convertToEntity(courseDto);
                     updatedCourse.setId(id);
                     Course savedCourse = courseRepository.save(updatedCourse);
-                    return courseMapper.convertToDTO(savedCourse);
+                    return Optional.of(courseMapper.convertToDTO(savedCourse));
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with id " + id));
     }

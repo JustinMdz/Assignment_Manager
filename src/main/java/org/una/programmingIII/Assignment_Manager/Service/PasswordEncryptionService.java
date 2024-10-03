@@ -14,6 +14,7 @@ public class PasswordEncryptionService {
     private final PasswordEncoder bcryptEncoder;
 
     public PasswordEncryptionService() {
+
         this.bcryptEncoder = new BCryptPasswordEncoder();
     }
 

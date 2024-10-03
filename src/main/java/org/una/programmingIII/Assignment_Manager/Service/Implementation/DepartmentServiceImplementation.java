@@ -2,6 +2,8 @@ package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 
 import org.springframework.stereotype.Service;
 import org.una.programmingIII.Assignment_Manager.Dto.DepartmentDto;
+import org.una.programmingIII.Assignment_Manager.Dto.UniversityDto;
+import org.una.programmingIII.Assignment_Manager.Mapper.MapperConfig;
 import org.una.programmingIII.Assignment_Manager.Model.Department;
 import org.una.programmingIII.Assignment_Manager.Repository.DepartmentRepository;
 import org.una.programmingIII.Assignment_Manager.Service.DepartmentService;
@@ -11,13 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentServiceImplementation implements DepartmentService {
     @Autowired
     private DepartmentRepository departmentRepository;
     private final GenericMapper<Department, DepartmentDto> departmentMapper;
+    @Autowired
+    private MapperConfig mapperConfig;
 
     public DepartmentServiceImplementation(GenericMapperFactory mapperFactory) {
         this.departmentMapper = mapperFactory.createMapper(Department.class, DepartmentDto.class);
@@ -31,19 +37,27 @@ public class DepartmentServiceImplementation implements DepartmentService {
     }
 
     @Override
+    public List<DepartmentDto> getAllDepartments() {
+        return departmentRepository.findAll().stream()
+                .map(departmentMapper::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public Optional<DepartmentDto> getById(Long id) {
         return departmentRepository.findById(id)
                 .map(departmentMapper::convertToDTO);
     }
 
     @Override
-    public DepartmentDto update(Long id, DepartmentDto departmentDto) {
+    public Optional<DepartmentDto> update(Long id, DepartmentDto departmentDto) {
         return departmentRepository.findById(id)
                 .map(existingDepartment -> {
                     Department updatedDepartment = departmentMapper.convertToEntity(departmentDto);
                     updatedDepartment.setId(id);
                     Department savedDepartment = departmentRepository.save(updatedDepartment);
-                    return departmentMapper.convertToDTO(savedDepartment);
+                    return Optional.of(departmentMapper.convertToDTO(savedDepartment));
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Department not found with id " + id));
     }
