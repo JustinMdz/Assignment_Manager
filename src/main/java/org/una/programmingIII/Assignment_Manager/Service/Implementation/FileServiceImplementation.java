@@ -1,12 +1,21 @@
 package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 
-import lombok.AllArgsConstructor;
+
+import lombok.SneakyThrows;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRange;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 import org.una.programmingIII.Assignment_Manager.Dto.FileDto;
+import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Model.File;
@@ -14,13 +23,12 @@ import org.una.programmingIII.Assignment_Manager.Repository.FileRepository;
 import org.una.programmingIII.Assignment_Manager.Service.FileService;
 
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.file.*;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class FileServiceImplementation implements FileService {
@@ -48,7 +56,9 @@ public class FileServiceImplementation implements FileService {
         }
     }
 
+    @SneakyThrows
     @Override
+    @Transactional
     public void saveFile(FileDto fileDto, int totalChunks, Path fileChunkStorageLocation) throws IOException {
         Path finalFileLocation = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(fileDto.getName());
         try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(finalFileLocation))) {
@@ -57,6 +67,7 @@ public class FileServiceImplementation implements FileService {
                 Files.copy(chunkPath, outputStream);
             }
         }
+
         FileUtils.deleteDirectory(fileChunkStorageLocation.toFile());
 
         fileDto.setFilePath(finalFileLocation.toString());
@@ -66,6 +77,48 @@ public class FileServiceImplementation implements FileService {
 
         fileRepository.save(fileEntity);
     }
+
+    @Override
+    public ResponseEntity<InputStreamResource> downloadFileInChunks(Long fileId, @RequestHeader(value = "Range", required = false) String rangeHeader) throws IOException {
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new ElementNotFoundException("File not found"));
+        Path filePath = Paths.get(file.getFilePath()).toAbsolutePath().normalize();
+        long fileSize = Files.size(filePath);
+
+        long chunkSize = 512 * 1024;
+        long start = 0;
+        long end = chunkSize - 1;
+
+        if (rangeHeader == null || !rangeHeader.startsWith("bytes=")) {
+            end = Math.min(end, fileSize - 1);
+        } else {
+            List<HttpRange> httpRanges = HttpRange.parseRanges(rangeHeader);
+            HttpRange httpRange = httpRanges.get(0);
+            start = httpRange.getRangeStart(fileSize);
+            end = httpRange.getRangeEnd(fileSize);
+        }
+
+        if (end >= fileSize) {
+            end = fileSize - 1;
+        }
+
+        long contentLength = end - start + 1;
+
+        FileChannel fileChannel = FileChannel.open(filePath, StandardOpenOption.READ);
+        fileChannel.position(start);
+        InputStreamResource resource = new InputStreamResource(Channels.newInputStream(fileChannel));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
+        headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
+        headers.add(HttpHeaders.ACCEPT_RANGES, "bytes");
+        headers.add(HttpHeaders.CONTENT_RANGE, "bytes " + start + "-" + end + "/" + fileSize);
+        headers.add(HttpHeaders.CACHE_CONTROL, "no-cache");
+
+        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .headers(headers)
+                .body(resource);
+    }
+
     @Override
     public void deleteFile(FileDto fileDto) throws IOException {
         Path fileLocation = Paths.get(fileDto.getFilePath()).toAbsolutePath().normalize();

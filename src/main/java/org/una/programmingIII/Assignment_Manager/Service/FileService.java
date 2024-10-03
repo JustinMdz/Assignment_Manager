@@ -1,5 +1,9 @@
 package org.una.programmingIII.Assignment_Manager.Service;
 
+import jakarta.annotation.Resource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 import org.una.programmingIII.Assignment_Manager.Dto.FileDto;
 
@@ -12,5 +16,5 @@ public interface FileService {
     void deleteFile(FileDto fileDto) throws Exception;
     FileDto getFile(Long id);
     FileDto getFileBySubmission(Long id);
-
+    ResponseEntity<InputStreamResource> downloadFileInChunks(Long fileId, @RequestHeader(value = "Range", required = false) String rangeHeader) throws IOException;
 }
