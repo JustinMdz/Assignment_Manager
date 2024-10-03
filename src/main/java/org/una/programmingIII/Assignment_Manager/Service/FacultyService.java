@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FacultyService {
-    FacultyDto create(FacultyDto facultyDto);
+    List<FacultyDto> getAllFaculties();
 
     Optional<FacultyDto> getById(Long id);
 
-    FacultyDto update(Long id, FacultyDto facultyDto);
+    FacultyDto create(FacultyDto facultyDto);
+
+    Optional<FacultyDto> update(Long id, FacultyDto facultyDto);
 
     void delete(Long id);
 }
