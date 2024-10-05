@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.una.programmingIII.Assignment_Manager.Dto.FileDto;
-import org.una.programmingIII.Assignment_Manager.Model.File;
+import org.una.programmingIII.Assignment_Manager.Dto.Input.FileInput;
+import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
+import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Service.FileService;
 
 import java.io.IOException;
@@ -15,21 +17,22 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/files")
 public class FileController {
+    private final GenericMapper<FileInput, FileDto> fileMapper;
     private final FileService fileService;
 
     @Autowired
-    public FileController(FileService fileService) {
+    public FileController(FileService fileService, GenericMapperFactory mapperFactory) {
         this.fileService = fileService;
+        this.fileMapper = mapperFactory.createMapper(FileInput.class, FileDto.class);
     }
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFileChunk(@RequestParam("fileChunk") MultipartFile fileChunk,
-                                             @RequestParam("name") String name,
+                                             @RequestParam("fileInput") FileInput fileInput,
                                              @RequestParam("chunkNumber") int chunkNumber,
                                              @RequestParam("totalChunks") int totalChunks) {
         try {
-            FileDto fileDto = new FileDto();
-            fileDto.setName(name);
+            FileDto fileDto = fileMapper.convertToDTO(fileInput);
             fileService.saveFileChunk(fileChunk, fileDto, chunkNumber, totalChunks);
             return ResponseEntity.ok("Chunk uploaded successfully");
         } catch (IOException e) {

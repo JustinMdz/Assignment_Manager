@@ -27,7 +27,6 @@ import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -56,7 +55,6 @@ public class FileServiceImplementation implements FileService {
         }
     }
 
-    @SneakyThrows
     @Override
     @Transactional
     public void saveFile(FileDto fileDto, int totalChunks, Path fileChunkStorageLocation) throws IOException {

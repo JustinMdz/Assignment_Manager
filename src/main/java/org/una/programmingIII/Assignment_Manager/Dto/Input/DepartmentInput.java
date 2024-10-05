@@ -1,13 +1,13 @@
-package org.una.programmingIII.Assignment_Manager.Dto;
+package org.una.programmingIII.Assignment_Manager.Dto.Input;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class DepartmentDto {
+@NoArgsConstructor
+public class DepartmentInput {
     private Long id;
     private String name;
     private Long facultyId;

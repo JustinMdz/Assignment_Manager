@@ -7,10 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.una.programmingIII.Assignment_Manager.Dto.DepartmentDto;
+import org.una.programmingIII.Assignment_Manager.Dto.Input.DepartmentInput;
 import org.una.programmingIII.Assignment_Manager.Dto.UniversityDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
+import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
+import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
+import org.una.programmingIII.Assignment_Manager.Model.Department;
 import org.una.programmingIII.Assignment_Manager.Service.DepartmentService;
 
 import java.util.List;
@@ -20,10 +24,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/departments")
 public class DepartmentController {
-    @Autowired
-    private DepartmentService departmentService;
+    private final GenericMapper<DepartmentInput, DepartmentDto> departmentMapper;
+    private final DepartmentService departmentService;
 
-    @GetMapping("getAllDepartments")
+    @Autowired
+    public DepartmentController(DepartmentService departmentService, GenericMapperFactory mapperFactory) {
+        this.departmentService = departmentService;
+        this.departmentMapper = mapperFactory.createMapper(DepartmentInput.class, DepartmentDto.class);
+    }
+                                @GetMapping("getAllDepartments")
     public ResponseEntity<List<DepartmentDto>> getAllDepartments() {
         List<DepartmentDto> universities = departmentService.getAllDepartments();
         return new ResponseEntity<>(universities, HttpStatus.OK);
@@ -57,9 +66,9 @@ public class DepartmentController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createDepartment(@RequestBody DepartmentDto departmentDto) {
+    public ResponseEntity<?> createDepartment(@RequestBody  DepartmentInput departmentInput) {
         try {
-            DepartmentDto createdUniversity = departmentService.create(departmentDto);
+            DepartmentDto createdUniversity = departmentService.create(departmentMapper.convertToDTO(departmentInput));
             return new ResponseEntity<>(createdUniversity, HttpStatus.CREATED);
         } catch (BlankInputException e) {
             return new ResponseEntity<>(new CustomErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value()), HttpStatus.BAD_REQUEST);
@@ -69,9 +78,9 @@ public class DepartmentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody DepartmentDto departmentDto) {
+    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody DepartmentInput departmentInput) {
         try {
-            Optional<DepartmentDto> updatedDepartment = departmentService.update(id, departmentDto);
+            Optional<DepartmentDto> updatedDepartment = departmentService.update(id, departmentMapper.convertToDTO(departmentInput));
             return updatedDepartment.map(ResponseEntity::ok)
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (ElementNotFoundException ex) {
