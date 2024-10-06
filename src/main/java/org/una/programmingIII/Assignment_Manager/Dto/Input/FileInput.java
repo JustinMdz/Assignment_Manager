@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FileInput {
     private Long id;
-    private String name;
+    private String originalName;
     private Long fileSize;
     private String filePath;
     private SubmissionInput submission;

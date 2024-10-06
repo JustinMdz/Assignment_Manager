@@ -28,6 +28,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class FileServiceImplementation implements FileService {
@@ -44,24 +45,25 @@ public class FileServiceImplementation implements FileService {
 
     @Override
     public void saveFileChunk(MultipartFile fileChunk, FileDto fileDto, int chunkNumber, int totalChunks) throws IOException {
-        Path fileChunkStorageLocation = Paths.get(uploadDir, fileDto.getName() + "_chunks").toAbsolutePath().normalize();
+        String uniqueFileName = UUID.randomUUID().toString() + "_" + fileDto.getOriginalName();
+        Path fileChunkStorageLocation = Paths.get(uploadDir, uniqueFileName+ "_chunks").toAbsolutePath().normalize();
         Files.createDirectories(fileChunkStorageLocation);
 
-        Path targetLocation = fileChunkStorageLocation.resolve(fileDto.getName() + ".part" + chunkNumber);
+        Path targetLocation = fileChunkStorageLocation.resolve(uniqueFileName + ".part" + chunkNumber);
         Files.copy(fileChunk.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
         if (chunkNumber == totalChunks) {
-            saveFile(fileDto, totalChunks, fileChunkStorageLocation);
+            saveFile(fileDto, totalChunks, fileChunkStorageLocation, uniqueFileName);
         }
     }
 
     @Override
     @Transactional
-    public void saveFile(FileDto fileDto, int totalChunks, Path fileChunkStorageLocation) throws IOException {
-        Path finalFileLocation = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(fileDto.getName());
+    public void saveFile(FileDto fileDto, int totalChunks, Path fileChunkStorageLocation,String uniqueFileName) throws IOException {
+        Path finalFileLocation = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(uniqueFileName);
         try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(finalFileLocation))) {
             for (int i = 1; i <= totalChunks; i++) {
-                Path chunkPath = fileChunkStorageLocation.resolve(fileDto.getName() + ".part" + i);
+                Path chunkPath = fileChunkStorageLocation.resolve(uniqueFileName + ".part" + i);
                 Files.copy(chunkPath, outputStream);
             }
         }
@@ -70,7 +72,7 @@ public class FileServiceImplementation implements FileService {
 
         fileDto.setFilePath(finalFileLocation.toString());
         fileDto.setFileSize(Files.size(finalFileLocation));
-
+        fileDto.setName(uniqueFileName);
         File fileEntity = fileMapper.convertToEntity(fileDto);
 
         fileRepository.save(fileEntity);
@@ -106,7 +108,7 @@ public class FileServiceImplementation implements FileService {
         InputStreamResource resource = new InputStreamResource(Channels.newInputStream(fileChannel));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getOriginalName() + "\"");
         headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
         headers.add(HttpHeaders.ACCEPT_RANGES, "bytes");
         headers.add(HttpHeaders.CONTENT_RANGE, "bytes " + start + "-" + end + "/" + fileSize);

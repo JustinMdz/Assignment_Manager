@@ -12,7 +12,7 @@ import java.nio.file.Path;
 
 public interface FileService {
     void saveFileChunk(MultipartFile fileChunk, FileDto fileDto, int chunkNumber, int totalChunks) throws IOException;
-    void saveFile(FileDto fileDto, int totalChunks, Path fileChunkStorageLocation) throws Exception;
+    void saveFile(FileDto fileDto, int totalChunks, Path fileChunkStorageLocation,String uniqueFileName) throws Exception;
     void deleteFile(FileDto fileDto) throws Exception;
     FileDto getFile(Long id);
     FileDto getFileBySubmission(Long id);

@@ -14,7 +14,8 @@ public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @JoinColumn(name = "original_name")
+    private String originalName;
     private String name;
     private Long fileSize;
     private String filePath;
