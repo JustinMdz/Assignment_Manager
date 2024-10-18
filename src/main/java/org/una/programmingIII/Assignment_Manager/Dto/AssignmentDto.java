@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.una.programmingIII.Assignment_Manager.Model.AssignmentType;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,5 +19,6 @@ public class AssignmentDto {
     private String description;
     private LocalDate dueDate;
     private CourseDto course;
+    private List<FileDto> files;
 }
 

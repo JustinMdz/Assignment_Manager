@@ -14,5 +14,7 @@ public class FileDto {
     private Long fileSize;
     private String filePath;
     private SubmissionDto submission;
+    private AssignmentDto assignment;
+    private CourseContentDto courseContent;
 
 }

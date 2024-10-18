@@ -21,6 +21,12 @@ public class File {
     private String filePath;
 
     @ManyToOne
-    @JoinColumn(name = "id_submission")
+    @JoinColumn(name = "submission_id", nullable = true)
     private Submission submission;
+    @ManyToOne
+    @JoinColumn(name = "assignment_id", nullable = true)
+    private Assignment assignment;
+    @ManyToOne
+    @JoinColumn(name = "course_content_id", nullable = true)
+    private CourseContent courseContent;
 }

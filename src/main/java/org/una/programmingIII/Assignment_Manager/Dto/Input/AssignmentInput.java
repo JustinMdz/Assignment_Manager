@@ -3,7 +3,6 @@ package org.una.programmingIII.Assignment_Manager.Dto.Input;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.una.programmingIII.Assignment_Manager.Model.AssignmentType;
 
 import java.time.LocalDate;
 @Data
@@ -12,8 +11,7 @@ import java.time.LocalDate;
 public class AssignmentInput {
     private Long id;
     private String title;
-    private AssignmentType type;
+    private String type;
     private String description;
     private LocalDate dueDate;
-    private CourseInput course;
 }
