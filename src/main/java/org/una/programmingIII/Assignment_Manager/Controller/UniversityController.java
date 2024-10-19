@@ -6,14 +6,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.una.programmingIII.Assignment_Manager.Dto.Input.UniversityInput;
 import org.una.programmingIII.Assignment_Manager.Dto.UniversityDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
-import org.una.programmingIII.Assignment_Manager.Model.University;
 import org.una.programmingIII.Assignment_Manager.Service.UniversityService;
 
 import java.util.List;
@@ -23,16 +21,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/universities")
 public class UniversityController {
-
-
     private final UniversityService universityService;
-    private final GenericMapper<UniversityInput, UniversityDto> universityMapper;
 
     @Autowired
     public UniversityController(UniversityService universityService, GenericMapperFactory universityMapper) {
         this.universityService = universityService;
-        this.universityMapper = universityMapper.createMapper(UniversityInput.class, UniversityDto.class);
     }
+
     @GetMapping("getUniversities")
     public ResponseEntity<List<UniversityDto>> getUniversities() {
         List<UniversityDto> universities = universityService.getAllUniversities();
@@ -66,9 +61,9 @@ public class UniversityController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createUniversity(@RequestBody UniversityInput universityInput) {
+    public ResponseEntity<?> createUniversity(@RequestBody UniversityDto universityInput) {
         try {
-            UniversityDto createdUniversity = universityService.create(universityMapper.convertToDTO(universityInput));
+            UniversityDto createdUniversity = universityService.create(universityInput);
             return new ResponseEntity<>(createdUniversity, HttpStatus.CREATED);
         } catch (BlankInputException e) {
             return new ResponseEntity<>(new CustomErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value()), HttpStatus.BAD_REQUEST);
@@ -78,9 +73,9 @@ public class UniversityController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUniversity(@PathVariable Long id, @RequestBody UniversityInput universityInput) {
+    public ResponseEntity<?> updateUniversity(@PathVariable Long id, @RequestBody UniversityDto universityInput) {
         try {
-            Optional<UniversityDto> updatedUniversity = universityService.update(id, universityMapper.convertToDTO(universityInput));
+            Optional<UniversityDto> updatedUniversity = universityService.update(id, universityInput);
             return updatedUniversity.map(ResponseEntity::ok)
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (ElementNotFoundException ex) {
