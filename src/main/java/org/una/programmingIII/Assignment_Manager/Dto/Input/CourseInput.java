@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,5 +15,5 @@ public class CourseInput {
     private String description;
     private UserInput professor;
     private List<UserInput> students;
-    private DepartmentInput department;
+    private Long departmentId;
 }
