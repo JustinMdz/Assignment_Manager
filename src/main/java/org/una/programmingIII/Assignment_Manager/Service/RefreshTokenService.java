@@ -24,7 +24,8 @@ public class RefreshTokenService {
         if (jwtService.validateToken(refreshToken)) {
             String email = jwtService.getEmailFromToken(refreshToken);
             Optional<UserDto> user = userService.getUserByEmail(email);
-            return jwtService.generateAccessToken(user);
+            return user.map(jwtService::generateAccessToken)
+                    .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
         } else {
             throw new BadCredentialsException("Invalid refresh token");
         }

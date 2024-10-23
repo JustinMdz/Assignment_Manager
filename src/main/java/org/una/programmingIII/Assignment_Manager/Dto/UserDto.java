@@ -3,7 +3,8 @@ package org.una.programmingIII.Assignment_Manager.Dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.una.programmingIII.Assignment_Manager.Model.PermissionType;
+
+import java.util.Set;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +17,7 @@ public class UserDto {
     private String name;
     private String email;
     private String identificationNumber;
-    private PermissionType role;
+    private Set<PermissionDto> permissions;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdate;
 }

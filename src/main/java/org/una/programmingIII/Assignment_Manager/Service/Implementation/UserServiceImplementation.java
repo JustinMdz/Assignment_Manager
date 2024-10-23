@@ -71,6 +71,15 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    public User findUserByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new ElementNotFoundException("User with email " + email + " not found");
+        }
+        return user;
+    }
+
+    @Override
     public UserDto createUser(UserInput userInput) {
         if (checkImportantSpaces(userInput)) {
             throw new BlankInputException("Important spaces have blank inputs or are not included.");
@@ -98,7 +107,6 @@ public class UserServiceImplementation implements UserService {
                 })
                 .orElseThrow(() -> new ElementNotFoundException("User with ID " + id + " not found"));
     }
-
 
     @Override
     public void deleteUser(Long id) {

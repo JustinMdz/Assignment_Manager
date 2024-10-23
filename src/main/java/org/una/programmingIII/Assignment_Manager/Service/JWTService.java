@@ -32,9 +32,9 @@ public class JWTService {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String generateAccessToken(Optional<UserDto> user) {
+    public String generateAccessToken(UserDto user) {
         return Jwts.builder()
-                .setSubject(user.get().getEmail())
+                .setSubject(user.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(SignatureAlgorithm.HS256, key)
@@ -82,13 +82,4 @@ public class JWTService {
         }
     }
 
-    public String generateOneTimeUseToken(String email) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .claim("jti", UUID.randomUUID().toString())
-                .setExpiration(new Date(System.currentTimeMillis() + resetPasswordExpiration))
-                .signWith(SignatureAlgorithm.HS256, key)
-                .compact();
-    }
 }

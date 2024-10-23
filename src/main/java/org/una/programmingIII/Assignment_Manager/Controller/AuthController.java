@@ -1,87 +1,68 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
-import jakarta.mail.MessagingException;
+import io.jsonwebtoken.JwtException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.una.programmingIII.Assignment_Manager.Dto.Input.LoginInput;
+import org.una.programmingIII.Assignment_Manager.Dto.LoginResponse;
+import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
+import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
+import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
+import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
+import org.una.programmingIII.Assignment_Manager.Model.User;
+import org.una.programmingIII.Assignment_Manager.Service.AuthenticationService;
+import org.una.programmingIII.Assignment_Manager.Service.JWTService;
+import org.una.programmingIII.Assignment_Manager.Service.RefreshTokenService;
 
 
-@Controller
+@RestController
+@RequestMapping("/auth")
 public class AuthController {
-//    private final AuthenticationService authenticationService;
-//    private final RefreshTokenService refreshTokenService;
-//    private final JWTService jwtService;
-//    private final GenericMapper<User, UserDto> userMapper;
-//    private final UserService userService;
-//
-//
-//    @Autowired
-//    AuthController(AuthenticationService authenticationService, RefreshTokenService refreshTokenService, JWTService jwtService, GenericMapperFactory mapperFactory, UserService userService) {
-//        this.authenticationService = authenticationService;
-//        this.refreshTokenService = refreshTokenService;
-//        this.jwtService = jwtService;
-//        this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
-//        this.userService = userService;
-//    }
-//
-//    @MutationMapping
-//    public LoginResponse login(@Argument LogInInput input) {
-//        try {
-//            UserDto userDto = authenticationService.authenticate(input.getEmail(), input.getPassword());
-//            User user = userMapper.convertToEntity(userDto);
-//            String accessToken = jwtService.generateAccessToken(user);
-//            String refreshToken = jwtService.generateRefreshToken(user);
-//            return new LoginResponse(userDto, accessToken, refreshToken);
-//        } catch (Exception e) {
-//            throw new BadCredentialsException("Invalid credentials");
-//        }
-//    }
-//
-//    @MutationMapping
-//    public RefreshTokenDto refreshToken(@Argument String refreshToken) {
-//        try {
-//            String newAccessToken = refreshTokenService.refreshAccessToken(refreshToken);
-//            return new RefreshTokenDto(newAccessToken);
-//        } catch (AuthenticationException e) {
-//            throw new BadCredentialsException("Invalid refresh token");
-//        }
-//    }
-//
-//    @MutationMapping
-//    public void changePassword(@Argument ChangePasswordInput input) {
-//        try {
-//            authenticationService.changePassword(input.getEmail(), input.getPassword(), input.getNewPassword());
-//        } catch (AuthenticationException e) {
-//            throw new BadCredentialsException("Invalid credentials");
-//        }
-//    }
-//
-//    @MutationMapping
-//    public String initiateRecoverPassword(@Argument String email) {
-//        try {
-//            return authenticationService.initiatePasswordRecovery(email);
-//        } catch (AuthenticationException e) {
-//            throw new BadCredentialsException("Invalid credentials");
-//        } catch (MessagingException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    @MutationMapping
-//    public String recoverPassword(@Argument RecoverPasswordInput input) {
-//        try {
-//            return authenticationService.completePasswordRecovery(input);
-//        } catch (AuthenticationException e) {
-//            throw new BadCredentialsException("Invalid credentials");
-//        }
-//    }
-//    @MutationMapping
-//    public UserDto createUser(@Argument UserInput input) {
-//        try {
-//            return userService.createUser(input);
-//        } catch (Exception e) {
-//            throw new CustomException("Could not create user"+ e.getMessage(), e);
-//        }
-//    }
+
+    private final AuthenticationService authenticationService;
+    private final RefreshTokenService refreshTokenService;
+    private final JWTService jwtService;
+    private final GenericMapper<User, UserDto> userMapper;
+
+    @Autowired
+    AuthController(AuthenticationService authenticationService, RefreshTokenService refreshTokenService, JWTService jwtService, GenericMapperFactory mapperFactory) {
+        this.authenticationService = authenticationService;
+        this.refreshTokenService = refreshTokenService;
+        this.jwtService = jwtService;
+        this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
+    }
+
+    @Operation(summary = "Authenticate user", description = "Authenticates a user by providing their email and password.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Authentication successful"),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Database error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
+    @PostMapping("/login")
+    public ResponseEntity<?> login(
+            @Parameter(description = "Login request containing email and password")
+            @RequestBody LoginInput loginRequest) {
+        try {
+            UserDto userDto = authenticationService.authenticate(loginRequest);
+            User user = userMapper.convertToEntity(userDto);
+            String accessToken = jwtService.generateAccessToken(userDto);
+            String refreshToken = jwtService.generateRefreshToken(userDto);
+            System.out.println(userDto);
+            return ResponseEntity.ok(new LoginResponse(userDto, accessToken, refreshToken));
+        } catch (Exception ex) {//check it out
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
 }

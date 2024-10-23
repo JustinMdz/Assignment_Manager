@@ -1,88 +1,85 @@
-//package org.una.programmingIII.Assignment_Manager.Service;
-//
-//import jakarta.mail.MessagingException;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.authentication.BadCredentialsException;
-//import org.springframework.security.core.AuthenticationException;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.stereotype.Service;
-//import org.una.programmingIII.WikiPets.Dto.UserDto;
-//import org.una.programmingIII.WikiPets.Exception.NotFoundElementException;
-//import org.una.programmingIII.WikiPets.Input.RecoverPasswordInput;
-//import org.una.programmingIII.WikiPets.Mapper.GenericMapper;
-//import org.una.programmingIII.WikiPets.Mapper.GenericMapperFactory;
-//import org.una.programmingIII.WikiPets.Model.User;
-//
-//import java.time.LocalDate;
-//
-//@Service
-//public class AuthenticationService {
-//
-//    private final UserService userService;
-//    private final JWTService jtwService;
-//    private final PasswordEncoder passwordEncoder;
-//    private final GenericMapper<User, UserDto> userMapper;
-//    private final EmailService emailService;
-//
-//    @Autowired
-//    AuthenticationService(UserService userService, GenericMapperFactory mapperFactory, PasswordEncoder passwordEncoder,JWTService jwtService,EmailService emailService) {
-//        this.userService = userService;
-//        this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
-//        this.passwordEncoder = passwordEncoder;
-//        this.jtwService = jwtService;
-//        this.emailService = emailService;
-//    }
-//
-//    public UserDto authenticate(String email, String password) {
-//        User user;
-//        try {
-//            user = userService.findByEmail(email);
-//        } catch (AuthenticationException ex) {
-//            throw new BadCredentialsException("Invalid credentials");
-//        }
-//        if (!passwordEncoder.matches(password, user.getPassword())) {
-//            throw new BadCredentialsException("Invalid credentials");
-//        }
-//        return userMapper.convertToDTO(user);
-//    }
-//
-//    public String initiatePasswordRecovery(String email) throws MessagingException {
-//        User user = userService.findByEmail(email);
-//        if(user==null){
-//            throw  new NotFoundElementException("No user founded");
-//        }
-//        String token = jtwService.generateAccessToken(email);
-//
-//        emailService.sendSimpleEmail(email,
-//                "Password recovery",
-//                "Use this token to recover your password: " + token);
-//
-//        return "Email sent successfully";
-//    }
-//
-//    public String completePasswordRecovery(RecoverPasswordInput recoverPasswordInput) {
-//        User user = userService.findByEmail(recoverPasswordInput.getEmail());
-//        if(user==null){
-//            throw new NotFoundElementException("User not found");
-//        }
-//        System.out.println(!jtwService.isTokenExpired(recoverPasswordInput.getToken()));
-//        if(jtwService.isTokenExpired(recoverPasswordInput.getToken())){
-//            user.setPassword(passwordEncoder.encode(recoverPasswordInput.getPassword()));
-//            user.setLastUpdate(LocalDate.now());
-//            userService.updateUser(user);
-//            return "Password updated successfully";
-//        }
-//        return "Invalid token";
-//    }
+package org.una.programmingIII.Assignment_Manager.Service;
+
+import io.jsonwebtoken.JwtException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.una.programmingIII.Assignment_Manager.Dto.Input.LoginInput;
+import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
+import org.una.programmingIII.Assignment_Manager.Exception.InvalidCredentialsException;
+import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
+import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
+import org.una.programmingIII.Assignment_Manager.Model.User;
+
+import java.util.List;
+
+
+@Service
+public class AuthenticationService {
+
+    private final UserService userService;
+    private final PasswordEncryptionService passwordEncryptionServices;
+    private final GenericMapper<User, UserDto> userMapper;
+    private final JWTService jwtService;
+
+    @Autowired
+    AuthenticationService(UserService userService, PasswordEncryptionService passwordEncryptionService,
+                          GenericMapperFactory mapperFactory, JWTService jwtService) {
+        this.userService = userService;
+        this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
+        this.passwordEncryptionServices = passwordEncryptionService;
+        this.jwtService = jwtService;
+    }
+
+    public UserDto authenticate(LoginInput loginInput) {
+        User user = new User();
+        user = userService.findUserByEmail(loginInput.getEmail());
+        if (!(passwordEncryptionServices.matches(loginInput.getPassword(), user.getPassword()))) {
+             throw new InvalidCredentialsException("Invalid credentials");
+        }
+        return userMapper.convertToDTO(user);
+    }
 //
 //    public void changePassword(String email, String password, String newPassword) {
 //        User user = userService.findByEmail(email);
-//        if (!passwordEncoder.matches(password, user.getPassword())) {
-//            throw new BadCredentialsException("Current password is incorrect");
+//        if (!passwordEncryptionServices.matches(password, user.getPassword())) {
+//            throw new InvalidCredentialsException("Invalid credentials");
 //        }
-//        user.setPassword(passwordEncoder.encode(newPassword));
+//
+//        user.setPassword(passwordEncryptionServices.encodePassword(newPassword));
 //        userService.updateUser(user);
 //    }
 //
+//    public void resetPassword(ResetPasswordRequest input) {
 //
-//}
+//        User user = userService.findByEmail(input.getEmail());
+//        if (validateAdminToken(input.getAdminToken()) && validateUsedOneTimeToken(user, input.getAdminToken())) {
+//            user.setPassword(passwordEncryptionServices.encodePassword(input.getPassword()));
+//            UsedToken usedToken = new UsedToken();
+//            usedToken.setToken(input.getAdminToken());
+//            usedToken.setUser(user);
+//            user.getTokens().add(usedToken);
+//            usedTokenService.saveUsedToken(usedToken);
+//            userService.updateUser(user);
+//
+//        } else {
+//            throw new JwtException("Invalid or expired token");
+//        }
+//    }
+//
+//
+//    private boolean validateAdminToken(String token) {
+//        return !jwtService.isAccessTokenExpired(token) &&
+//                jwtService.validateToken(token) &&
+//                jwtService.getRoleFromToken(token).equals("1");
+//    }
+//
+//    private boolean validateUsedOneTimeToken(User user, String token) {
+//        List<UsedToken> tokenList = user.getTokens();
+//        List<String> tokens = tokenList.stream()
+//                .map(UsedToken::getToken)
+//                .toList();
+//        return !tokens.contains(token);
+//    }
+
+
+}
