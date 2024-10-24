@@ -75,7 +75,10 @@ public class FileServiceImplementation implements FileService {
         fileDto.setName(uniqueFileName);
         File fileEntity = fileMapper.convertToEntity(fileDto);
 
-        fileRepository.save(fileEntity);
+       fileDto = fileMapper.convertToDTO(fileRepository.save(fileEntity));
+       if (fileDto.getCourseContent()!=null){
+           //funcion para añadir el archivo a la lista de archivos del contenido del curso
+       }
     }
 
     @Override

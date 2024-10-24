@@ -18,10 +18,7 @@ public class CourseContent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String title;
-    private String description;
-
+    private String address;
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
