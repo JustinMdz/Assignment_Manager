@@ -1,6 +1,5 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
-import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,27 +15,25 @@ import org.una.programmingIII.Assignment_Manager.Dto.Input.LoginInput;
 import org.una.programmingIII.Assignment_Manager.Dto.LoginResponse;
 import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
+import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
+import org.una.programmingIII.Assignment_Manager.Exception.InvalidCredentialsException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Model.User;
 import org.una.programmingIII.Assignment_Manager.Service.AuthenticationService;
 import org.una.programmingIII.Assignment_Manager.Service.JWTService;
-import org.una.programmingIII.Assignment_Manager.Service.RefreshTokenService;
-
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
     private final AuthenticationService authenticationService;
-    private final RefreshTokenService refreshTokenService;
     private final JWTService jwtService;
     private final GenericMapper<User, UserDto> userMapper;
 
     @Autowired
-    AuthController(AuthenticationService authenticationService, RefreshTokenService refreshTokenService, JWTService jwtService, GenericMapperFactory mapperFactory) {
+    AuthController(AuthenticationService authenticationService, JWTService jwtService, GenericMapperFactory mapperFactory) {
         this.authenticationService = authenticationService;
-        this.refreshTokenService = refreshTokenService;
         this.jwtService = jwtService;
         this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
     }
@@ -60,9 +57,31 @@ public class AuthController {
             String refreshToken = jwtService.generateRefreshToken(userDto);
             System.out.println(userDto);
             return ResponseEntity.ok(new LoginResponse(userDto, accessToken, refreshToken));
-        } catch (Exception ex) {//check it out
+        } catch (ElementNotFoundException ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        } catch (InvalidCredentialsException ex) {
             return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()), HttpStatus.UNAUTHORIZED);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Server Error", HttpStatus.UNAUTHORIZED.value()), HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity<?> refreshToken(
+            @Parameter(description = "Refresh token")
+            @RequestBody String refreshToken) {
+        try {
+            String newAccessToken = jwtService.refreshAccessToken(refreshToken);
+            return ResponseEntity.ok(newAccessToken);
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>(new CustomErrorResponse("Invalid refresh token", HttpStatus.UNAUTHORIZED.value()), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/validateToken")
+    public ResponseEntity<Boolean> validateToken(@RequestParam String token) {
+        boolean isValid = jwtService.isValidToken(token);
+        return new ResponseEntity<>(isValid, HttpStatus.OK);
     }
 
 }
