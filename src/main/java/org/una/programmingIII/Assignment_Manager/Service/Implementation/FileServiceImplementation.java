@@ -1,7 +1,6 @@
 package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 
 
-import lombok.SneakyThrows;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +19,8 @@ import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Model.File;
 import org.una.programmingIII.Assignment_Manager.Repository.FileRepository;
+import org.una.programmingIII.Assignment_Manager.Service.AssignmentService;
+import org.una.programmingIII.Assignment_Manager.Service.CourseContentService;
 import org.una.programmingIII.Assignment_Manager.Service.FileService;
 
 
@@ -36,11 +37,14 @@ public class FileServiceImplementation implements FileService {
     private final GenericMapper<File, FileDto> fileMapper;
     @Value("${file.upload-dir}")
     private String uploadDir;
-
+private final AssignmentService assignmentService;
+private final CourseContentService courseContentService;
     @Autowired
-    public FileServiceImplementation(FileRepository repository, GenericMapperFactory mapperFactory) {
+    public FileServiceImplementation(FileRepository repository, GenericMapperFactory mapperFactory,AssignmentService assignmentService,CourseContentService courseContentService) {
         this.fileRepository = repository;
         this.fileMapper = mapperFactory.createMapper(File.class, FileDto.class);
+        this.assignmentService = assignmentService;
+        this.courseContentService = courseContentService;
     }
 
     @Override
@@ -73,12 +77,14 @@ public class FileServiceImplementation implements FileService {
         fileDto.setFilePath(finalFileLocation.toString());
         fileDto.setFileSize(Files.size(finalFileLocation));
         fileDto.setName(uniqueFileName);
-        File fileEntity = fileMapper.convertToEntity(fileDto);
+        File fileEntity =fileRepository.save(fileMapper.convertToEntity(fileDto)) ;
 
-       fileDto = fileMapper.convertToDTO(fileRepository.save(fileEntity));
        if (fileDto.getCourseContent()!=null){
-           //funcion para añadir el archivo a la lista de archivos del contenido del curso
+              courseContentService.insertFileToCourseContent(fileDto.getCourseContent().getId(), fileEntity);
        }
+         if (fileDto.getAssignment()!=null){
+                  assignmentService.insertFileToAssignment(fileDto.getAssignment().getId(), fileEntity);
+         }
     }
 
     @Override
@@ -138,4 +144,5 @@ public class FileServiceImplementation implements FileService {
         File file = fileRepository.findBySubmissionId(id);
         return fileMapper.convertToDTO(file);
     }
+
 }

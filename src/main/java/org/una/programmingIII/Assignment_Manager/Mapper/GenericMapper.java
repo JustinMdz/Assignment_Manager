@@ -1,6 +1,9 @@
 package org.una.programmingIII.Assignment_Manager.Mapper;
 
+import org.una.programmingIII.Assignment_Manager.Model.CourseContent;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public interface GenericMapper<E, D> {

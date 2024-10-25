@@ -22,5 +22,6 @@ public interface CourseService {
 
     Optional<CourseDto> update(Long id, CourseDto courseDto);
 
+
     void delete(Long id);
 }

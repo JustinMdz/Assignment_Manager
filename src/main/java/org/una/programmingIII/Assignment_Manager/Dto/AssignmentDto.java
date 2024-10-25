@@ -20,5 +20,7 @@ public class AssignmentDto {
     private LocalDate dueDate;
     private CourseDto course;
     private List<FileDto> files;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
 }
 
