@@ -1,5 +1,8 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,11 @@ public class FileController {
         this.fileMapper = mapperFactory.createMapper(FileInput.class, FileDto.class);
     }
 
+    @Operation(summary = "Upload file chunk", description = "This endpoint uploads a file chunk to the server.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Chunk uploaded successfully"),
+            @ApiResponse(responseCode = "500", description = "Error uploading chunk")
+    })
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFileChunk(@RequestParam("fileChunk") MultipartFile fileChunk,
                                              @RequestParam("fileInput") FileInput fileInput,
@@ -40,7 +48,11 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading chunk");
         }
     }
-
+    @Operation(summary = "Download file in chunks", description = "This endpoint downloads a file in chunks.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "File downloaded successfully"),
+            @ApiResponse(responseCode = "500", description = "Error downloading file")
+    })
     @GetMapping("/download/{fileId}")
     public ResponseEntity<InputStreamResource> downloadFileInChunks(@PathVariable Long fileId, @RequestHeader(value = "Range", required = false) String rangeHeader) {
         try {

@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.una.programmingIII.Assignment_Manager.Dto.CourseDto;
 import org.una.programmingIII.Assignment_Manager.Model.Course;
-import org.una.programmingIII.Assignment_Manager.Model.University;
 import org.una.programmingIII.Assignment_Manager.Repository.CourseRepository;
 import org.una.programmingIII.Assignment_Manager.Service.CourseService;
 

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 import org.una.programmingIII.Assignment_Manager.Dto.FileDto;
+import org.una.programmingIII.Assignment_Manager.Model.File;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -1,6 +1,9 @@
 package org.una.programmingIII.Assignment_Manager.Mapper;
 
 import org.modelmapper.ModelMapper;
+import org.una.programmingIII.Assignment_Manager.Model.CourseContent;
+
+import java.util.Optional;
 
 
 public class GenericMapperImplementation<E, D> implements GenericMapper<E, D> {

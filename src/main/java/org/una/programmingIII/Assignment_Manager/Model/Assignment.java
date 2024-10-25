@@ -31,4 +31,6 @@ public class Assignment {
 
     @OneToMany(mappedBy = "assignment")
     private List<File> files;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
 }
