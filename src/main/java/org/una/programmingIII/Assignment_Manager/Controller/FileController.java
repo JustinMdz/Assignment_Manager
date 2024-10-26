@@ -29,6 +29,21 @@ public class FileController {
         this.fileMapper = mapperFactory.createMapper(FileInput.class, FileDto.class);
     }
 
+    @Operation(summary = "Create a new File", description = "This endpoint creates a new File.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "File created successfully"),
+            @ApiResponse(responseCode = "500", description = "Error creating File")
+    })
+    @PostMapping("/")
+    public ResponseEntity<?> createFile(@RequestBody FileInput fileInput) {
+        try {
+            FileDto fileDto = fileService.createFile(fileMapper.convertToDTO(fileInput));
+            return new ResponseEntity<>(fileDto, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating File");
+        }
+    }
+
     @Operation(summary = "Upload file chunk", description = "This endpoint uploads a file chunk to the server.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Chunk uploaded successfully"),
@@ -36,12 +51,11 @@ public class FileController {
     })
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFileChunk(@RequestParam("fileChunk") MultipartFile fileChunk,
-                                             @RequestParam("fileInput") FileInput fileInput,
+                                             @RequestParam("fileId") Long fileId,
                                              @RequestParam("chunkNumber") int chunkNumber,
                                              @RequestParam("totalChunks") int totalChunks) {
         try {
-            FileDto fileDto = fileMapper.convertToDTO(fileInput);
-            fileService.saveFileChunk(fileChunk, fileDto, chunkNumber, totalChunks);
+            fileService.saveFileChunk(fileChunk, fileId, chunkNumber, totalChunks);
             return ResponseEntity.ok("Chunk uploaded successfully");
         } catch (IOException e) {
             e.printStackTrace();
