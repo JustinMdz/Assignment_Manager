@@ -34,16 +34,16 @@ public class JWTService {
     }
 
     public String generateAccessToken(UserDto user) {
-        return generateToken(user, accessTokenExpiration);
+        return generateToken(user.getEmail(), accessTokenExpiration);
     }
 
     public String generateRefreshToken(UserDto user) {
-        return generateToken(user, refreshTokenExpiration);
+        return generateToken(user.getEmail(), refreshTokenExpiration);
     }
 
-    private String generateToken(UserDto user, long expirationTime) {
+    public String generateToken(String email, long expirationTime) {
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, key)
