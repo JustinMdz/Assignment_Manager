@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
+import io.jsonwebtoken.ExpiredJwtException;
 
 import java.security.Key;
 import java.util.Date;
@@ -61,22 +62,38 @@ public class JWTService {
     }
 
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims().getSubject();
+        } catch (JwtException e) {
+            throw new BadCredentialsException("Invalid token", e);
+        }
     }
 
+
     public String refreshAccessToken(String token) {
-        if (isValidToken(token)) {
+        if (isTokenExpiredButValid(token)) {
             String email = getEmailFromToken(token);
-            Optional<UserDto> user = userService.getUserByEmail(email);
-            return user.map(this::generateAccessToken)
-                    .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
+            return generateToken(email,accessTokenExpiration);
         } else {
             throw new BadCredentialsException("Invalid refresh token");
+        }
+    }
+
+    public boolean isTokenExpiredButValid(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return false;
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (JwtException e) {
+            return false;
         }
     }
 

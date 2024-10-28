@@ -70,7 +70,7 @@ public class AuthController {
     @PostMapping("/refreshToken")
     public ResponseEntity<?> refreshToken(
             @Parameter(description = "Refresh token")
-            @RequestBody String refreshToken) {
+            @RequestParam String refreshToken) {
         try {
             String newAccessToken = jwtService.refreshAccessToken(refreshToken);
             return ResponseEntity.ok(newAccessToken);
