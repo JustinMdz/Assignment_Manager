@@ -13,5 +13,6 @@ public class AssignmentInput {
     private String title;
     private String type;
     private String description;
+    private String address;
     private LocalDate dueDate;
 }

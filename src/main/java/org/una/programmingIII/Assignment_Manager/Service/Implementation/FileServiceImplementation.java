@@ -46,10 +46,14 @@ private final CourseContentService courseContentService;
         this.assignmentService = assignmentService;
         this.courseContentService = courseContentService;
     }
-
+    public FileDto createFile(FileDto fileDto) {
+        File fileEntity = fileRepository.save(fileMapper.convertToEntity(fileDto));
+        return fileMapper.convertToDTO(fileEntity);
+    }
     @Override
-    public void saveFileChunk(MultipartFile fileChunk, FileDto fileDto, int chunkNumber, int totalChunks) throws IOException {
-        String uniqueFileName = UUID.randomUUID().toString() + "_" + fileDto.getOriginalName();
+    public void saveFileChunk(MultipartFile fileChunk, Long  fileId, int chunkNumber, int totalChunks) throws IOException {
+        FileDto fileDto = fileMapper.convertToDTO(fileRepository.findById(fileId).orElseThrow(() -> new ElementNotFoundException("File not found")));
+        String uniqueFileName = UUID.randomUUID().toString() + "_" + fileDto.getName();
         Path fileChunkStorageLocation = Paths.get(uploadDir, uniqueFileName+ "_chunks").toAbsolutePath().normalize();
         Files.createDirectories(fileChunkStorageLocation);
 
@@ -63,7 +67,7 @@ private final CourseContentService courseContentService;
 
     @Override
     @Transactional
-    public void saveFile(FileDto fileDto, int totalChunks, Path fileChunkStorageLocation,String uniqueFileName) throws IOException {
+    public void saveFile(FileDto  fileDto, int totalChunks, Path fileChunkStorageLocation,String uniqueFileName) throws IOException {
         Path finalFileLocation = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(uniqueFileName);
         try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(finalFileLocation))) {
             for (int i = 1; i <= totalChunks; i++) {
@@ -76,14 +80,15 @@ private final CourseContentService courseContentService;
 
         fileDto.setFilePath(finalFileLocation.toString());
         fileDto.setFileSize(Files.size(finalFileLocation));
-        fileDto.setName(uniqueFileName);
-        File fileEntity =fileRepository.save(fileMapper.convertToEntity(fileDto)) ;
+        fileDto.setProvisionalName(uniqueFileName);
+     File fileEntity =fileRepository.save(fileMapper.convertToEntity(fileDto)) ;
 
-       if (fileDto.getCourseContent()!=null){
-              courseContentService.insertFileToCourseContent(fileDto.getCourseContent().getId(), fileEntity);
+       if (fileDto.getCourseContentId()!=null){
+              courseContentService.insertFileToCourseContent(fileDto.getCourseContentId(), fileEntity);
        }
-         if (fileDto.getAssignment()!=null){
-                  assignmentService.insertFileToAssignment(fileDto.getAssignment().getId(), fileEntity);
+
+         if (fileDto.getAssignmentId()!=null){
+                  assignmentService.insertFileToAssignment(fileDto.getAssignmentId(), fileEntity);
          }
     }
 
@@ -117,7 +122,7 @@ private final CourseContentService courseContentService;
         InputStreamResource resource = new InputStreamResource(Channels.newInputStream(fileChannel));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getOriginalName() + "\"");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
         headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
         headers.add(HttpHeaders.ACCEPT_RANGES, "bytes");
         headers.add(HttpHeaders.CONTENT_RANGE, "bytes " + start + "-" + end + "/" + fileSize);

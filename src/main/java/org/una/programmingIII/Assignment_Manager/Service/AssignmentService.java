@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.una.programmingIII.Assignment_Manager.Dto.AssignmentDto;
 import org.una.programmingIII.Assignment_Manager.Model.File;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,4 +24,7 @@ public interface AssignmentService {
     void delete(Long id);
 
     void insertFileToAssignment(Long id, File file);
+    List<AssignmentDto> findAllByCourseId(Long courseId);
+    AssignmentDto findByCourseIdAndAddress(Long courseId, String address);
+
 }

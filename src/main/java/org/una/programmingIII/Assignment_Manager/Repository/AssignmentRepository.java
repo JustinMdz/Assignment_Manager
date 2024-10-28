@@ -6,4 +6,6 @@ import org.una.programmingIII.Assignment_Manager.Model.Assignment;
 
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
+    Assignment findAllByCourseId(Long courseId);
+    Assignment findByCourseIdAndAddress(Long courseId, String address);
 }

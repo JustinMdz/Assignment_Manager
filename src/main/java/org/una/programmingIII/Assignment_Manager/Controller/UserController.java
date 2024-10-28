@@ -86,6 +86,17 @@ public class UserController {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+    @GetMapping("/getByRole")
+    public ResponseEntity<?> getUsersByRole(@RequestParam String role) {
+        try {
+            List<UserDto> users = userService.getUsersByRole(role);
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (ElementNotFoundException ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/tik")
     public String hola() {
