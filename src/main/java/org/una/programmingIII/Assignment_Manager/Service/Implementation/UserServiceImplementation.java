@@ -99,6 +99,14 @@ public class UserServiceImplementation implements UserService {
                 .orElseThrow(() -> new ElementNotFoundException("User with ID " + id + " not found"));
     }
 
+    @Override
+    public List<UserDto> getUsersByRole(String role) {
+        List<User> users = (List<User>) userRepository.findByRole(role);
+        return users.stream()
+                .map(userMapper::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public void deleteUser(Long id) {

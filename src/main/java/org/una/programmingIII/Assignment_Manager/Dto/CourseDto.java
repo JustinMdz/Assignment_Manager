@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -17,4 +18,6 @@ public class CourseDto {
     private UserDto professor;
     private List<UserDto> students;
     private Long departmentId;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

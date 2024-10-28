@@ -24,6 +24,8 @@ public interface UserService {
 
     Optional<UserDto> updateUser(Long id, UserInput userInput);
 
+    List<UserDto> getUsersByRole(String role);
+
     void deleteUser(Long id);
 
 }
