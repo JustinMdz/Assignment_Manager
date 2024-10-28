@@ -30,10 +30,14 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "student_id")
     )
     private List<User> students;
-private LocalDate startDate;
-private LocalDate endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+
+    @ManyToOne
+    @JoinColumn(name = "career_id")
+    private Career career;
 
 }
