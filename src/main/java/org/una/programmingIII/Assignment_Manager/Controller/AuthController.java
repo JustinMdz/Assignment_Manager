@@ -84,16 +84,4 @@ public class AuthController {
         boolean isValid = jwtService.isValidToken(token);
         return new ResponseEntity<>(isValid, HttpStatus.OK);
     }
-
-    @PostMapping("/sendVerificationEmail")
-    public ResponseEntity<?> sendVerificationEmail(@RequestParam String email) {
-        try {
-            authenticationService.sendVerificationEmail(email);
-            return ResponseEntity.ok("Verification email sent successfully.");
-        } catch (MessagingException e) {
-            return new ResponseEntity<>(new CustomErrorResponse("Error sending verification email", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
 }

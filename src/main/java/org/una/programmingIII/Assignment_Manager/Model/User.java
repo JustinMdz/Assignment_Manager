@@ -29,6 +29,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    private boolean isActive = false;
 
     @Column(nullable = false, unique = true)
     private String identificationNumber;

@@ -88,6 +88,7 @@ public class UserServiceImplementation implements UserService {
         user.setPassword(passwordEncryptionService.encodePassword(userInput.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setLastUpdate(LocalDateTime.now());
+        user.setActive(false);
         User savedUser = userRepository.save(user);
         return userMapper.convertToDTO(savedUser);
     }
@@ -123,20 +124,33 @@ public class UserServiceImplementation implements UserService {
         userRepository.deleteById(id);
     }
 
-    private boolean checkImportantSpaces(UserInput userInput) {
-        return userInput.getName().isBlank() || userInput.getEmail().isBlank() || userInput.getPassword().isBlank();
+    @Override
+    public UserDto activateUser(Long id) {
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isPresent()) {
+            User usuario = existingUser.get();
+            usuario.setActive(true);
+            userRepository.save(usuario);
+            return userMapper.convertToDTO(usuario);
+        } else {
+            throw new RuntimeException("Usuario no encontrado con el id: " + id);
+        }
     }
 
-    private <T> List<T> limitListOrDefault(List<T> list, int limit) {
-        return list == null ? new ArrayList<>() : limitList(list, limit);
-    }
+        private boolean checkImportantSpaces (UserInput userInput){
+            return userInput.getName().isBlank() || userInput.getEmail().isBlank() || userInput.getPassword().isBlank();
+        }
 
-    private <T> List<T> limitList(List<T> list, int limit) {
-        return list.stream().limit(limit).collect(Collectors.toList());
-    }
+        private <T > List < T > limitListOrDefault(List < T > list, int limit){
+            return list == null ? new ArrayList<>() : limitList(list, limit);
+        }
 
-    private UserDto convertToDto(User user) {
-        return userMapper.convertToDTO(user);
-    }
+        private <T > List < T > limitList(List < T > list, int limit){
+            return list.stream().limit(limit).collect(Collectors.toList());
+        }
 
-}
+        private UserDto convertToDto (User user){
+            return userMapper.convertToDTO(user);
+        }
+
+    }

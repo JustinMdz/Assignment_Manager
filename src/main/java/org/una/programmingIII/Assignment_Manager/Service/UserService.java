@@ -29,4 +29,6 @@ public interface UserService {
 
     void deleteUser(Long id);
 
+    UserDto activateUser(Long id);
+
 }

@@ -1,6 +1,5 @@
 package org.una.programmingIII.Assignment_Manager.Service;
 
-import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.una.programmingIII.Assignment_Manager.Dto.Input.LoginInput;
@@ -18,8 +17,6 @@ public class AuthenticationService {
     private final UserService userService;
     private final PasswordEncryptionService passwordEncryptionServices;
     private final GenericMapper<User, UserDto> userMapper;
-    private final JWTService jwtService;
-    private final EmailService emailService;
 
     @Autowired
     AuthenticationService(UserService userService, PasswordEncryptionService passwordEncryptionService,
@@ -27,8 +24,6 @@ public class AuthenticationService {
         this.userService = userService;
         this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
         this.passwordEncryptionServices = passwordEncryptionService;
-        this.jwtService = jwtService;
-        this.emailService = emailService;
     }
 
     public UserDto authenticate(LoginInput loginInput) {
@@ -41,15 +36,5 @@ public class AuthenticationService {
         }
         return userMapper.convertToDTO(user);
     }
-
-    public void sendVerificationEmail(String email) throws MessagingException {
-        long tokenDuration = 120000;
-        String token = jwtService.generateToken(email, tokenDuration);
-
-        emailService.sendSimpleEmail(email,
-                "Registar Usuario",
-                "Usa este link para poder verficar tu cuenta: " +"http://localhost:8080/auth/"+ token);
-    }
-
 
 }

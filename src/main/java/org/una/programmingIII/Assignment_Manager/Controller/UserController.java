@@ -12,6 +12,7 @@ import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
+import org.una.programmingIII.Assignment_Manager.Service.EmailService;
 import org.una.programmingIII.Assignment_Manager.Service.UserService;
 
 import java.util.List;
@@ -24,6 +25,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("getAllUsers")
     public ResponseEntity<List<UserDto>> getAllUsers() {
@@ -62,6 +65,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody UserInput userInput) {
         try {
             UserDto createdUser = userService.createUser(userInput);
+          emailService.enviarCorreoActivacion(createdUser.getEmail(), "Subjet", createdUser.getId());
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (BlankInputException e) {
             return new ResponseEntity<>(new CustomErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value()), HttpStatus.BAD_REQUEST);
@@ -86,6 +90,12 @@ public class UserController {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PutMapping("/activate/{id}")
+    public UserDto activarUsuario(@PathVariable Long id) {
+        return userService.activateUser(id);
+    }
+
 //    @GetMapping("/getByRole")
 //    public ResponseEntity<?> getUsersByRole(@RequestParam String role) {
 //        try {
