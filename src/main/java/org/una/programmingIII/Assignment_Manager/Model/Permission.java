@@ -1,8 +1,11 @@
 package org.una.programmingIII.Assignment_Manager.Model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
+@Table(name = "permissions")
 
 public class Permission {
     @Id

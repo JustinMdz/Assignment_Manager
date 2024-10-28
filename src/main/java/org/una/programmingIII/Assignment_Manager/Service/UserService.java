@@ -25,6 +25,7 @@ public interface UserService {
     Optional<UserDto> updateUser(Long id, UserInput userInput);
 
     List<UserDto> getUsersByRole(String role);
+    User findUserByEmail(String email);
 
     void deleteUser(Long id);
 

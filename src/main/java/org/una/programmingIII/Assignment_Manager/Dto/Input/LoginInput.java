@@ -1,14 +1,15 @@
 package org.una.programmingIII.Assignment_Manager.Dto.Input;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DepartmentInput {
-    private Long id;
-    private String name;
-    private Long facultyId;
+public class LoginInput {
+    private String email;
+    private String password;
 }

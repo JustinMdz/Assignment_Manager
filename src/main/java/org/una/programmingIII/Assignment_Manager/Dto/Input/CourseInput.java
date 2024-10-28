@@ -7,6 +7,7 @@ import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
 
 import java.time.LocalDate;
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,4 +19,5 @@ public class CourseInput {
     private Long departmentId;
     private LocalDate startDate;
     private LocalDate endDate;
+
 }
