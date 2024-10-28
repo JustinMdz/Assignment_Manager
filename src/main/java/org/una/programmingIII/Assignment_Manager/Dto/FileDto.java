@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FileDto {
     private Long id;
-    private String originalName;
+    private String provisionalName;
     private String name;
     private Long fileSize;
     private String filePath;
-    private SubmissionDto submission;
-    private AssignmentDto assignment;
-    private CourseContentDto courseContent;
+    private Long submissionId;
+    private Long assignmentId;
+    private Long courseContentId;
 
 }

@@ -18,7 +18,7 @@ import org.una.programmingIII.Assignment_Manager.Service.FileService;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/api/files")
 public class FileController {
     private final GenericMapper<FileInput, FileDto> fileMapper;
     private final FileService fileService;

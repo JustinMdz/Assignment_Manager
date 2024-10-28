@@ -16,5 +16,5 @@ public class CourseDto {
     private String description;
     private UserDto professor;
     private List<UserDto> students;
-    private DepartmentDto department;
+    private Long departmentId;
 }

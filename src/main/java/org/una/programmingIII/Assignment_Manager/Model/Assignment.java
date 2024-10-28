@@ -24,7 +24,7 @@ public class Assignment {
     private String description;
 
     private LocalDate dueDate;
-
+    private String address;
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;

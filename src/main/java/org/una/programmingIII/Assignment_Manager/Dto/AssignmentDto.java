@@ -17,6 +17,7 @@ public class AssignmentDto {
     private String title;
     private AssignmentType type;
     private String description;
+    private String address;
     private LocalDate dueDate;
     private CourseDto course;
     private List<FileDto> files;

@@ -65,7 +65,7 @@ CourseController(CourseService courseService, GenericMapperFactory mapperFactory
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/")
     public ResponseEntity<?> createCourse(@RequestBody  CourseInput courseInput) {
         try {
             CourseDto createdCourseDto = courseService.create(courseMapper.convertToDTO(courseInput));

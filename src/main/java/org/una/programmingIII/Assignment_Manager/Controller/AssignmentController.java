@@ -43,8 +43,8 @@ public class AssignmentController {
         return assignmentService.getPageAssignment(pageable);
     }
 
-    @GetMapping("/getById")
-    public ResponseEntity<?> getAssignmentById(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAssignmentById(@PathVariable(name = "id") Long id) {
         try {
             AssignmentDto assignmentDto = assignmentService.findById(id);
             return new ResponseEntity<>(assignmentDto, HttpStatus.OK);
@@ -55,6 +55,28 @@ public class AssignmentController {
         }
     }
 
+    @GetMapping("/getByCourseId/{id}")
+    public ResponseEntity<?> getAssignmentsByCourseId(@PathVariable(name = "id") Long courseId) {
+        try{
+            return new ResponseEntity<>(assignmentService.findAllByCourseId(courseId), HttpStatus.OK);
+        } catch (ElementNotFoundException ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getByCourseIdAndAddress/{courseId}/{address}")
+    public ResponseEntity<?> getAssignmentByCourseIdAndAddress(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "address") String address) {
+        try {
+            AssignmentDto assignmentDto = assignmentService.findByCourseIdAndAddress(courseId, address);
+            return new ResponseEntity<>(assignmentDto, HttpStatus.OK);
+        } catch (ElementNotFoundException ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @PostMapping("/create")
     public ResponseEntity<?> createAssignment(@RequestBody  AssignmentInput assignmentInput) {
         try {
