@@ -15,4 +15,5 @@ public class CareerDto {
     private String description;
     private DepartmentDto department;
     private List<CourseDto> courses;
+    private List<UserDto> users;
 }

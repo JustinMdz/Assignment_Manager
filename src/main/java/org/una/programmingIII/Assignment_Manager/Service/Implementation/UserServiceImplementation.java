@@ -109,13 +109,13 @@ public class UserServiceImplementation implements UserService {
     }
 
 
-    @Override
-    public List<UserDto> getUsersByRole(String role) {
-        List<User> users = (List<User>) userRepository.findByRole(role);
-        return users.stream()
-                .map(userMapper::convertToDTO)
-                .collect(Collectors.toList());
-    }
+//    @Override
+//    public List<UserDto> getUsersByRole(String role) {
+//        List<User> users = (List<User>) userRepository.findByRole(role);
+//        return users.stream()
+//                .map(userMapper::convertToDTO)
+//                .collect(Collectors.toList());
+//    }
 
 
     @Override

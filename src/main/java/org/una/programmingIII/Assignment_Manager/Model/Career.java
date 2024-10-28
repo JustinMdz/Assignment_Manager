@@ -23,4 +23,7 @@ public class Career {
 
     @OneToMany(mappedBy = "career")
     private List<Course> courses;
+
+    @OneToMany(mappedBy = "career")
+    private List<User> users;
 }

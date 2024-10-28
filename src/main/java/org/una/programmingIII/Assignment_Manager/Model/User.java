@@ -5,6 +5,7 @@ import lombok.Data;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 
@@ -46,6 +47,13 @@ public class User {
 
     @Column(nullable = false)
     private LocalDateTime lastUpdate;
+
+    @ManyToOne
+    @JoinColumn(name = "career_id")
+    private Career career;
+
+    @ManyToMany
+    private List<Course> courses;
 
 
     @PrePersist
