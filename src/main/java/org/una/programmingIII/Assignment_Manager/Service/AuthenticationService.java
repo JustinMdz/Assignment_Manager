@@ -10,7 +10,6 @@ import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Model.User;
 
-
 @Service
 public class AuthenticationService {
 
@@ -28,9 +27,10 @@ public class AuthenticationService {
 
     public UserDto authenticate(LoginInput loginInput) {
         User user = userService.findUserByEmail(loginInput.getEmail());
-        if (user == null) {
+        if (user == null || !(user.isActive())) {
             throw new ElementNotFoundException("User not found");
         }
+
         if (!(passwordEncryptionServices.matches(loginInput.getPassword(), user.getPassword()))) {
             throw new InvalidCredentialsException("Invalid credentials");
         }

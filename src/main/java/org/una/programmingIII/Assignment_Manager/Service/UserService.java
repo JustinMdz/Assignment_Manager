@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
+
+    Optional<UserDto> findById(Long id);
+
     List<UserDto> getAllUsers();
 
     Map<String, Object> getUsers(int page, int size, int limit);
@@ -24,7 +27,6 @@ public interface UserService {
 
     Optional<UserDto> updateUser(Long id, UserInput userInput);
 
-  //  List<UserDto> getUsersByRole(String role);
     User findUserByEmail(String email);
 
     void deleteUser(Long id);

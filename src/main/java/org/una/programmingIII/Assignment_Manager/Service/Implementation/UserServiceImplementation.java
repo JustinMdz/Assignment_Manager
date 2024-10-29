@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.una.programmingIII.Assignment_Manager.Dto.Input.UserInput;
 import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
+import org.una.programmingIII.Assignment_Manager.Exception.DuplicateEmailException;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
@@ -37,6 +38,13 @@ public class UserServiceImplementation implements UserService {
         this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
         this.userInputMapper = mapperFactory.createMapper(User.class, UserInput.class);
     }
+
+    @Override
+    public Optional<UserDto> findById(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::convertToDTO);
+    }
+
 
     @Override
     public List<UserDto> getAllUsers() {
@@ -84,6 +92,12 @@ public class UserServiceImplementation implements UserService {
         if (checkImportantSpaces(userInput)) {
             throw new BlankInputException("Important spaces have blank inputs or are not included.");
         }
+
+        if (userRepository.findByEmail(userInput.getEmail()) != null) {
+            throw new DuplicateEmailException("Email " + userInput.getEmail() + " is already in use.");
+        }
+
+
         User user = userInputMapper.convertToEntity(userInput);
         user.setPassword(passwordEncryptionService.encodePassword(userInput.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
@@ -109,16 +123,6 @@ public class UserServiceImplementation implements UserService {
                 .orElseThrow(() -> new ElementNotFoundException("User with ID " + id + " not found"));
     }
 
-
-//    @Override
-//    public List<UserDto> getUsersByRole(String role) {
-//        List<User> users = (List<User>) userRepository.findByRole(role);
-//        return users.stream()
-//                .map(userMapper::convertToDTO)
-//                .collect(Collectors.toList());
-//    }
-
-
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
@@ -137,20 +141,20 @@ public class UserServiceImplementation implements UserService {
         }
     }
 
-        private boolean checkImportantSpaces (UserInput userInput){
-            return userInput.getName().isBlank() || userInput.getEmail().isBlank() || userInput.getPassword().isBlank();
-        }
-
-        private <T > List < T > limitListOrDefault(List < T > list, int limit){
-            return list == null ? new ArrayList<>() : limitList(list, limit);
-        }
-
-        private <T > List < T > limitList(List < T > list, int limit){
-            return list.stream().limit(limit).collect(Collectors.toList());
-        }
-
-        private UserDto convertToDto (User user){
-            return userMapper.convertToDTO(user);
-        }
-
+    private boolean checkImportantSpaces(UserInput userInput) {
+        return userInput.getName().isBlank() || userInput.getEmail().isBlank() || userInput.getPassword().isBlank();
     }
+
+    private <T> List<T> limitListOrDefault(List<T> list, int limit) {
+        return list == null ? new ArrayList<>() : limitList(list, limit);
+    }
+
+    private <T> List<T> limitList(List<T> list, int limit) {
+        return list.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    private UserDto convertToDto(User user) {
+        return userMapper.convertToDTO(user);
+    }
+
+}

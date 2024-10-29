@@ -17,6 +17,7 @@ public class UserDto {
     private String name;
     private String email;
     private String identificationNumber;
+    private boolean isActive;
     private Set<PermissionDto> permissions;
     private Long careerId;
     private List<CourseDto> courses;
