@@ -49,10 +49,11 @@ public class DepartmentController {
     }
 
 
-    @GetMapping("/getById")
-    public ResponseEntity<?> getDepartmentById(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getDepartmentById(@PathVariable Long id) {
         try {
             Optional<DepartmentDto> departmentDto = departmentService.getById(id);
+            System.out.println(departmentDto);
             return new ResponseEntity<>(departmentDto, HttpStatus.OK);
         } catch (ElementNotFoundException ex) {
             return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
@@ -61,7 +62,7 @@ public class DepartmentController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/")
     public ResponseEntity<?> createDepartment(@RequestBody DepartmentDto departmentInput) {
         try {
             DepartmentDto createdUniversity = departmentService.create(departmentInput);

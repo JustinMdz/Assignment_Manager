@@ -13,7 +13,7 @@ public class CareerDto {
     private Long id;
     private String name;
     private String description;
-    private DepartmentDto department;
+    private Long departmentId;
     private List<CourseDto> courses;
     private List<UserDto> users;
 }

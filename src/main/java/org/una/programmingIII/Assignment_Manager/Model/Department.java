@@ -3,7 +3,7 @@ package org.una.programmingIII.Assignment_Manager.Model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "departments")
@@ -21,5 +21,5 @@ public class Department {
     private Faculty faculty;
 
     @OneToMany(mappedBy = "department")
-    private Set<Career> careers;
+    private List<Career> careers;
 }

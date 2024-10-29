@@ -19,12 +19,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class DepartmentServiceImplementation implements DepartmentService {
-    @Autowired
-    private DepartmentRepository departmentRepository;
+
+    private final DepartmentRepository departmentRepository;
     private final GenericMapper<Department, DepartmentDto> departmentMapper;
 
-    public DepartmentServiceImplementation(GenericMapperFactory mapperFactory) {
+    @Autowired
+    public DepartmentServiceImplementation(GenericMapperFactory mapperFactory, DepartmentRepository departmentRepository) {
         this.departmentMapper = mapperFactory.createMapper(Department.class, DepartmentDto.class);
+        this.departmentRepository = departmentRepository;
     }
 
     @Override
