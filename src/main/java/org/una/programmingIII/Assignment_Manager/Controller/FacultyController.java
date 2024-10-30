@@ -1,5 +1,10 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,12 +32,24 @@ public class FacultyController {
         this.facultyService = facultyService;
     }
 
+    @Operation(summary = "Get all faculties", description = "Retrieves all faculties.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Faculties retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("getAllFaculties")
     public ResponseEntity<List<FacultyDto>> getFaculties() {
         List<FacultyDto> universities = facultyService.getAllFaculties();
         return new ResponseEntity<>(universities, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get faculties map", description = "Retrieves faculties in a map format.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Faculties retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("getMap")
     public ResponseEntity<Map<String, Object>> getFaculties(
             @RequestParam(defaultValue = "0") int page,
@@ -42,12 +59,25 @@ public class FacultyController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get faculties pageable", description = "Retrieves faculties in a pageable format.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Faculties retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("getPageable")
     public Page<FacultyDto> getAllUniversities(Pageable pageable) {
         return facultyService.getPageFaculty(pageable);
     }
 
-
+    @Operation(summary = "Get faculty by ID", description = "Retrieves a faculty by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Faculty retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Faculty not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("/getById")
     public ResponseEntity<?> getFacultyById(@RequestParam Long id) {
         try {
@@ -60,6 +90,14 @@ public class FacultyController {
         }
     }
 
+    @Operation(summary = "Create faculty", description = "Creates a new faculty.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Faculty created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @PostMapping("/create")
     public ResponseEntity<?> createUniversity(@RequestBody FacultyDto facultyInput) {
         try {
@@ -72,6 +110,14 @@ public class FacultyController {
         }
     }
 
+    @Operation(summary = "Update faculty", description = "Updates an existing faculty by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Faculty updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Faculty not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUniversity(@PathVariable Long id, @RequestBody FacultyDto facultyInput) {
         try {
@@ -83,12 +129,16 @@ public class FacultyController {
         }
     }
 
+    @Operation(summary = "Delete faculty", description = "Deletes a faculty by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Faculty deleted successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFaculty(@PathVariable Long id) {
         facultyService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
 }
 

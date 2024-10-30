@@ -1,5 +1,10 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +38,14 @@ public class SubmissionController {
         this.submissionMapper = mapperFactory.createMapper(SubmissionInput.class, SubmissionDto.class);
     }
 
-                                @GetMapping("getMap")
+    @Operation(summary = "Get submissions as a map", description = "Retrieve submissions with pagination and limit as a map.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Submissions retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
+    @GetMapping("getMap")
     public ResponseEntity<Map<String, Object>> getSubmissions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -42,12 +54,27 @@ public class SubmissionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get submissions as pageable", description = "Retrieve submissions with pagination as pageable.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Submissions retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
     @GetMapping("getPageable")
     public Page<SubmissionDto> getSubmissions(Pageable pageable) {
         return submissionService.getPageSubmissions(pageable);
     }
 
-
+    @Operation(summary = "Get submission by ID", description = "Retrieve a submission by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Submission retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = SubmissionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Submission not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
     @GetMapping("/getById")
     public ResponseEntity<?> getSubmissionById(@RequestParam Long id) {
         try {
@@ -60,6 +87,15 @@ public class SubmissionController {
         }
     }
 
+    @Operation(summary = "Create a new submission", description = "Create a new submission with the provided data.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Submission created successfully",
+                    content = @Content(schema = @Schema(implementation = SubmissionDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
     @PostMapping("/")
     public ResponseEntity<?> createSubmission(@RequestBody SubmissionInput submissionInput) {
         try {
@@ -72,6 +108,15 @@ public class SubmissionController {
         }
     }
 
+    @Operation(summary = "Update a submission", description = "Update an existing submission with the provided data.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Submission updated successfully",
+                    content = @Content(schema = @Schema(implementation = SubmissionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Submission not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSubmission(@PathVariable Long id, @RequestBody SubmissionInput submissionInput) {
         try {
@@ -83,11 +128,17 @@ public class SubmissionController {
         }
     }
 
+    @Operation(summary = "Delete a submission", description = "Delete an existing submission by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Submission deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Submission not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSubmission(@PathVariable Long id) {
         submissionService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
 }

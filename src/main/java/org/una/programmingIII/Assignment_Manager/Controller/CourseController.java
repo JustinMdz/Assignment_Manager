@@ -1,5 +1,10 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,13 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.una.programmingIII.Assignment_Manager.Dto.CourseDto;
 import org.una.programmingIII.Assignment_Manager.Dto.Input.CourseInput;
-import org.una.programmingIII.Assignment_Manager.Dto.UniversityDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
-import org.una.programmingIII.Assignment_Manager.Model.Course;
 import org.una.programmingIII.Assignment_Manager.Service.CourseService;
 
 
@@ -27,17 +30,31 @@ import java.util.Optional;
 public class CourseController {
     private final GenericMapper<CourseInput, CourseDto> courseMapper;
     private CourseService courseService;
+
     @Autowired
-CourseController(CourseService courseService, GenericMapperFactory mapperFactory) {
+    CourseController(CourseService courseService, GenericMapperFactory mapperFactory) {
         this.courseService = courseService;
         this.courseMapper = mapperFactory.createMapper(CourseInput.class, CourseDto.class);
     }
-                 @GetMapping("getAllCourses")
+
+    @Operation(summary = "Get all courses", description = "Retrieves all courses.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Courses retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
+    @GetMapping("getAllCourses")
     public ResponseEntity<List<CourseDto>> getAllUniversities() {
         List<CourseDto> universities = courseService.getAllCourses();
         return new ResponseEntity<>(universities, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get courses with pagination", description = "Retrieves courses with pagination.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Courses retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("getMap")
     public ResponseEntity<Map<String, Object>> getCourses(
             @RequestParam(defaultValue = "0") int page,
@@ -47,12 +64,25 @@ CourseController(CourseService courseService, GenericMapperFactory mapperFactory
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get courses pageable", description = "Retrieves courses in a pageable format.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Courses retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("getPageable")
     public Page<CourseDto> getCourses(Pageable pageable) {
         return courseService.getPageCourses(pageable);
     }
 
-
+    @Operation(summary = "Get course by ID", description = "Retrieves a course by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Course retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Course not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("/getById")
     public ResponseEntity<?> getCourseById(@RequestParam Long id) {
         try {
@@ -65,8 +95,16 @@ CourseController(CourseService courseService, GenericMapperFactory mapperFactory
         }
     }
 
+    @Operation(summary = "Create course", description = "Creates a new course.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Course created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @PostMapping("/")
-    public ResponseEntity<?> createCourse(@RequestBody  CourseInput courseInput) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseInput courseInput) {
         try {
             CourseDto createdCourseDto = courseService.create(courseMapper.convertToDTO(courseInput));
             return new ResponseEntity<>(createdCourseDto, HttpStatus.CREATED);
@@ -77,6 +115,14 @@ CourseController(CourseService courseService, GenericMapperFactory mapperFactory
         }
     }
 
+    @Operation(summary = "Update course", description = "Updates an existing course by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Course updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Course not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCourse(@PathVariable Long id, @RequestBody CourseInput courseInput) {
         try {
@@ -88,6 +134,12 @@ CourseController(CourseService courseService, GenericMapperFactory mapperFactory
         }
     }
 
+    @Operation(summary = "Delete course", description = "Deletes a course by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Course deleted successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
         courseService.delete(id);

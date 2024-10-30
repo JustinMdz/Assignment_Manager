@@ -67,6 +67,14 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Refresh access token", description = "Generates a new access token using the provided refresh token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+            @ApiResponse(responseCode = "401", description = "Invalid refresh token",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @PostMapping("/refreshToken")
     public ResponseEntity<?> refreshToken(
             @Parameter(description = "Refresh token")
@@ -79,6 +87,14 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Validate token", description = "Validates the provided token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token is valid"),
+            @ApiResponse(responseCode = "401", description = "Invalid token",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("/validateToken")
     public ResponseEntity<Boolean> validateToken(@RequestParam String token) {
         boolean isValid = jwtService.isValidToken(token);

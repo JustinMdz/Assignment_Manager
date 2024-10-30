@@ -107,7 +107,7 @@ public class CourseContentController {
     }
     @Operation(summary = "Delete CourseContent", description = "This endpoint allows to delete a CourseContent.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "CourseContent deleted successfully",
+            @ApiResponse(responseCode = "204", description = "CourseContent deleted successfully",
                     content = @Content(schema = @Schema(implementation = CourseContentDto.class))),
             @ApiResponse(responseCode = "404", description = "CourseContent not found",
                     content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
@@ -118,7 +118,7 @@ public class CourseContentController {
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
         try {
             courseContentService.delete(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (ElementNotFoundException ex) {
             return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
         } catch (Exception e) {

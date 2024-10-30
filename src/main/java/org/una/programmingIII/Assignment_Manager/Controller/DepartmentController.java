@@ -1,5 +1,10 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +15,6 @@ import org.una.programmingIII.Assignment_Manager.Dto.DepartmentDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
-import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Service.DepartmentService;
 
@@ -28,12 +32,24 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
+    @Operation(summary = "Get all departments", description = "Retrieves all departments.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Departments retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("getAllDepartments")
     public ResponseEntity<List<DepartmentDto>> getAllDepartments() {
         List<DepartmentDto> universities = departmentService.getAllDepartments();
         return new ResponseEntity<>(universities, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get departments map", description = "Retrieves departments in a map format.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Departments retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("getMap")
     public ResponseEntity<Map<String, Object>> getDepartments(
             @RequestParam(defaultValue = "0") int page,
@@ -43,12 +59,25 @@ public class DepartmentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get departments pageable", description = "Retrieves departments in a pageable format.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Departments retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("getPageable")
     public Page<DepartmentDto> getDepartments(Pageable pageable) {
         return departmentService.getPageDepartments(pageable);
     }
 
-
+    @Operation(summary = "Get department by ID", description = "Retrieves a department by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Department retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Department not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getDepartmentById(@PathVariable Long id) {
         try {
@@ -62,6 +91,14 @@ public class DepartmentController {
         }
     }
 
+    @Operation(summary = "Create department", description = "Creates a new department.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Department created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @PostMapping("/")
     public ResponseEntity<?> createDepartment(@RequestBody DepartmentDto departmentInput) {
         try {
@@ -74,6 +111,14 @@ public class DepartmentController {
         }
     }
 
+    @Operation(summary = "Update department", description = "Updates an existing department by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Department updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Department not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody DepartmentDto departmentInput) {
         try {
@@ -85,12 +130,15 @@ public class DepartmentController {
         }
     }
 
+    @Operation(summary = "Delete department", description = "Deletes a department by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Department deleted successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
         departmentService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
 }
-
