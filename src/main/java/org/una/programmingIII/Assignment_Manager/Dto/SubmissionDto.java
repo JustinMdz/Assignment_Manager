@@ -4,6 +4,7 @@ package org.una.programmingIII.Assignment_Manager.Dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.una.programmingIII.Assignment_Manager.Dto.Input.FileInput;
 
 
 import java.time.LocalDate;
@@ -15,10 +16,10 @@ import java.util.List;
 @NoArgsConstructor
 public class SubmissionDto {
     private Long id;
-    private AssignmentDto assignment;
-    private UserDto student;
-    private List<FileDto> files;
-    private UserDto reviewedBy;
+    private Long assignmentId;
+    private Long studentId;
+    private List<FileInput> files;
+    private Long reviewedById;
     private Double grade;
     private String feedback;
     private LocalDateTime createdAt;

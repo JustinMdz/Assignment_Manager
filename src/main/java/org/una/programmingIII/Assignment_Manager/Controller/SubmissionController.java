@@ -60,7 +60,7 @@ public class SubmissionController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/")
     public ResponseEntity<?> createSubmission(@RequestBody SubmissionInput submissionInput) {
         try {
             SubmissionDto createdSubmissionDto = submissionService.create(submissionMapper.convertToDTO(submissionInput));
