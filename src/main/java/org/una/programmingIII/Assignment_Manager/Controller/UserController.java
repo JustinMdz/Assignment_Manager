@@ -45,7 +45,17 @@ public class UserController {
         List<UserDto> users = userService.getAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
-
+@GetMapping("/getUsersByPermission")
+public ResponseEntity<?> getUsersByPermission(@RequestParam String permission) {
+    try {
+        List<UserDto> users = userService.getUsersByPermission(permission);
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    } catch (ElementNotFoundException ex) {
+        return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+    } catch (Exception ex) {
+        return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
     @GetMapping("getMap")
     public ResponseEntity<Map<String, Object>> getUsers(
             @RequestParam(defaultValue = "0") int page,

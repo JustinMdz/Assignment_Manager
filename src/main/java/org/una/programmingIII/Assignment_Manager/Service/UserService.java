@@ -33,4 +33,6 @@ public interface UserService {
 
     UserDto activateUser(Long id);
 
+    List<UserDto> getUsersByPermission(String permission);
+
 }

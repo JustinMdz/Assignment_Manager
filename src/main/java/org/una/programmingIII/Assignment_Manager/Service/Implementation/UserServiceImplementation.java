@@ -141,6 +141,16 @@ public class UserServiceImplementation implements UserService {
         }
     }
 
+    @Override
+    public List<UserDto> getUsersByPermission(String permission) {
+        List<User> users = (List<User>) userRepository.findByPermissionName(permission);
+        List<UserDto> userDtos = new ArrayList<>();
+        for (User user : users) {
+            userDtos.add(userMapper.convertToDTO(user));
+        }
+        return userDtos;
+    }
+
     private boolean checkImportantSpaces(UserInput userInput) {
         return userInput.getName().isBlank() || userInput.getEmail().isBlank() || userInput.getPassword().isBlank();
     }
