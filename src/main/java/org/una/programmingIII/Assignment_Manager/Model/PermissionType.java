@@ -8,5 +8,6 @@ public enum PermissionType {
     VIEW_GRADES,
     MANAGE_USERS,
     VIEW_REPORTS,
-    EDIT_PROFILE
+    EDIT_PROFILE,
+    PROFESSOR
 }

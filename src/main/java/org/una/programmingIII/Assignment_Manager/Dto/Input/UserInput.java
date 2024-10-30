@@ -18,6 +18,8 @@ public class UserInput {
 
     private Long id;
     private String name;
+    private String lastName;
+    private String secondLastName;
     private String email;
     private String identificationNumber;
     private String password;

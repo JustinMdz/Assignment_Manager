@@ -6,10 +6,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.una.programmingIII.Assignment_Manager.Model.User;
 
+import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
-   @Query("select u from User u join u.permissions p where p.name = :permission")
-    User findByPermissionName(@Param("permission") String permission);
+
+    @Query(value = "SELECT u.* FROM users u JOIN user_permissions up ON u.id = up.user_id JOIN permissions p ON up.permission_id = p.id WHERE p.name = :permission", nativeQuery = true)
+    List<User> findByPermissionName(@Param("permission") String permission);
 }
