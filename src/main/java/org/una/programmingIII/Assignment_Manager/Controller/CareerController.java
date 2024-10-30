@@ -8,7 +8,7 @@ import org.una.programmingIII.Assignment_Manager.Dto.CareerDto;
 import org.una.programmingIII.Assignment_Manager.Service.CareerService;
 
 @RestController
-@RequestMapping("/api/careers/")
+@RequestMapping("/api/careers")
 public class CareerController {
 
     private final CareerService careerService;
@@ -18,13 +18,13 @@ public class CareerController {
         this.careerService = careerService;
     }
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<CareerDto> createCareer(@RequestBody CareerDto careerDto) {
         CareerDto createdCareer = careerService.create(careerDto);
         return new ResponseEntity<>(createdCareer, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCareer(@PathVariable Long id) {
         careerService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
