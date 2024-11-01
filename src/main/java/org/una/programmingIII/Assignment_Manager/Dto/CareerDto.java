@@ -11,9 +11,10 @@ import java.util.List;
 @AllArgsConstructor
 public class CareerDto {
     private Long id;
+    private List<Long> usersId;
     private String name;
     private String description;
     private Long departmentId;
     private List<CourseDto> courses;
-    private List<UserDto> users;
+
 }

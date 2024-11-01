@@ -13,6 +13,7 @@ import org.una.programmingIII.Assignment_Manager.Repository.CareerRepository;
 import org.una.programmingIII.Assignment_Manager.Service.CareerService;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CareerServiceImplementation implements CareerService {
@@ -30,8 +31,9 @@ public class CareerServiceImplementation implements CareerService {
     @Override
     public Optional<CareerDto> getById(Long id) {
         return careerRepository.findById(id)
-                .map(careerMapper::convertToDTO);
+                .map(this::convertToDto);
     }
+
 
     @Override
     public CareerDto create(CareerDto careerDto) {
@@ -55,7 +57,13 @@ public class CareerServiceImplementation implements CareerService {
     }
 
     private CareerDto convertToDto(Career career) {
-        return careerMapper.convertToDTO(career);
+        CareerDto careerDto = careerMapper.convertToDTO(career);
+        List<Long> usersId = career.getUsers().stream()
+                .map(user -> user.getId())
+                .collect(Collectors.toList());
+        careerDto.setUsersId(usersId);
+        return careerDto;
     }
+
 
 }
