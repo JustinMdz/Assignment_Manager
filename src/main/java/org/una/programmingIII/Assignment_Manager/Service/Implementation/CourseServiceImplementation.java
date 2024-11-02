@@ -15,7 +15,6 @@ import org.una.programmingIII.Assignment_Manager.Service.CourseService;
 import jakarta.persistence.EntityNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
-import org.una.programmingIII.Assignment_Manager.Service.UserService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -161,7 +160,6 @@ public class CourseServiceImplementation implements CourseService {
                 .map(user -> user.getId())
                 .collect(Collectors.toList());
         courseDto.setStudentsId(usersId);
-        courseDto.setProfessorId(course.getProfessor().getId());
         return courseDto;
     }
 

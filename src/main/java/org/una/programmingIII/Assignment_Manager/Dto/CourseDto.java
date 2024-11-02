@@ -14,9 +14,9 @@ public class CourseDto {
     private Long id;
     private String name;
     private String description;
-    private Long professorId;
-    private List<Long> studentsId;
     private Long careerId;
+    private UserDto professor;
+    private List<Long> studentsId;
     private LocalDate startDate;
     private LocalDate endDate;
 }

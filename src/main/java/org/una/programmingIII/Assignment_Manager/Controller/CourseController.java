@@ -83,10 +83,13 @@ public class CourseController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
     })
-    @GetMapping("/getById")
-    public ResponseEntity<?> getCourseById(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCourseById(@PathVariable Long id) {
         try {
             Optional<CourseDto> courseDto = courseService.getById(id);
+            if (!(courseDto.isPresent())) {
+                throw new ElementNotFoundException("Course not found");
+            }
             return new ResponseEntity<>(courseDto, HttpStatus.OK);
         } catch (ElementNotFoundException ex) {
             return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
@@ -104,9 +107,9 @@ public class CourseController {
                     content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
     })
     @PostMapping("/")
-    public ResponseEntity<?> createCourse(@RequestBody CourseInput courseInput) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseDto courseDto) {
         try {
-            CourseDto createdCourseDto = courseService.create(courseMapper.convertToDTO(courseInput));
+            CourseDto createdCourseDto = courseService.create(courseDto);
             return new ResponseEntity<>(createdCourseDto, HttpStatus.CREATED);
         } catch (BlankInputException e) {
             return new ResponseEntity<>(new CustomErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value()), HttpStatus.BAD_REQUEST);
@@ -229,7 +232,6 @@ public class CourseController {
             return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 
 }
