@@ -15,6 +15,7 @@ public class CareerDto {
     private String name;
     private String description;
     private Long departmentId;
-    private List<CourseDto> courses;
+    private List<Long> coursesId;
 
 }
+

@@ -62,6 +62,11 @@ public class CareerServiceImplementation implements CareerService {
                 .map(user -> user.getId())
                 .collect(Collectors.toList());
         careerDto.setUsersId(usersId);
+        
+        List<Long> coursesId = career.getCourses().stream()
+                .map(course -> course.getId())
+                .collect(Collectors.toList());
+        careerDto.setCoursesId(coursesId);
         return careerDto;
     }
 

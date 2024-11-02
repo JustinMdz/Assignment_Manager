@@ -89,6 +89,15 @@ public class CourseServiceImplementation implements CourseService {
         }
     }
 
+    @Override
+    public List<CourseDto> getCoursesByCareerId(Long careerId) {
+        return courseRepository.findByCareerId(careerId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+
     private <T> List<T> limitListOrDefault(List<T> list, int limit) {
         return list == null ? new ArrayList<>() : limitList(list, limit);
     }
@@ -98,6 +107,12 @@ public class CourseServiceImplementation implements CourseService {
     }
 
     private CourseDto convertToDto(Course course) {
-        return courseMapper.convertToDTO(course);
+        CourseDto courseDto = courseMapper.convertToDTO(course);
+        List<Long> usersId = course.getStudents().stream()
+                .map(user -> user.getId())
+                .collect(Collectors.toList());
+        courseDto.setStudentsId(usersId);
+        courseDto.setProfessorId(course.getProfessor().getId());
+        return courseDto;
     }
 }

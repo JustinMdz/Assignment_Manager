@@ -23,21 +23,20 @@ public class Course {
     @JoinColumn(name = "professor_id")
     private User professor;
 
-    @ManyToMany
-    @JoinTable(
-            name = "course_student",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id")
-    )
-    private List<User> students;
+
     private LocalDate startDate;
     private LocalDate endDate;
-    @ManyToOne
-    @JoinColumn(name = "department_id")
-    private Department department;
 
     @ManyToOne
     @JoinColumn(name = "career_id")
     private Career career;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "course_users",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> students;
 
 }

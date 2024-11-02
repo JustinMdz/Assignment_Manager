@@ -60,9 +60,6 @@ public class User {
     @JoinColumn(name = "career_id")
     private Career career;
 
-    @ManyToMany
-    private List<Course> courses;
-
 
     @PrePersist
     protected void onCreate() {

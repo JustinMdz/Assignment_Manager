@@ -22,6 +22,7 @@ public interface CourseService {
 
     Optional<CourseDto> update(Long id, CourseDto courseDto);
 
+    List<CourseDto> getCoursesByCareerId(Long careerId);
 
     void delete(Long id);
 }

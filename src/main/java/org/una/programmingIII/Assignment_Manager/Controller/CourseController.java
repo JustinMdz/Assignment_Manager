@@ -145,5 +145,20 @@ public class CourseController {
         courseService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-}
 
+
+    @GetMapping("/getByCareerId/{id}")
+    public ResponseEntity<?> getCoursesByCareerId(@PathVariable Long id) {
+        try {
+            List<CourseDto> courses = courseService.getCoursesByCareerId(id);
+            if (courses.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+}
