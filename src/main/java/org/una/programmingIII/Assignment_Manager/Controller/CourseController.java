@@ -160,5 +160,76 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Get courses enrolled by student ID", description = "Retrieves courses that a student is enrolled in by their ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Courses retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Student not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
+    @GetMapping("/enrolled/{studentId}")
+    public ResponseEntity<List<CourseDto>> getCoursesEnrolledByStudentId(@PathVariable Long studentId) {
+        List<CourseDto> courses = courseService.findCoursesEnrolledByStudentId(studentId);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get available courses by career ID and user ID", description = "Retrieves available courses based on career ID and user ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Courses retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "No available courses found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
+    @GetMapping("/available/career/{careerId}/user/{userId}")
+    public ResponseEntity<List<CourseDto>> getAvailableCoursesByCareerIdAndUserId(
+            @PathVariable Long careerId,
+            @PathVariable Long userId) {
+        List<CourseDto> courses = courseService.findAvailableCoursesByCareerIdAndUserId(careerId, userId);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Enroll student in a course", description = "Enrolls a student in a specified course.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Student enrolled successfully"),
+            @ApiResponse(responseCode = "404", description = "Course or user not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
+    @PostMapping("/enroll/{courseId}/user/{userId}")
+    public ResponseEntity<?> enrollStudent(@PathVariable Long courseId, @PathVariable Long userId) {
+        try {
+            courseService.enrollStudent(courseId, userId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ElementNotFoundException ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Unenroll student from a course", description = "Unenrolls a student from a specified course.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Student unenrolled successfully"),
+            @ApiResponse(responseCode = "404", description = "Course or user not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+    })
+    @DeleteMapping("/unenroll/{courseId}/user/{userId}")
+    public ResponseEntity<?> unenrollStudent(@PathVariable Long courseId, @PathVariable Long userId) {
+        try {
+            courseService.unenrollStudent(courseId, userId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ElementNotFoundException ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }

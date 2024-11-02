@@ -25,4 +25,12 @@ public interface CourseService {
     List<CourseDto> getCoursesByCareerId(Long careerId);
 
     void delete(Long id);
+
+    List<CourseDto> findCoursesEnrolledByStudentId(Long studentId);
+
+    List<CourseDto> findAvailableCoursesByCareerIdAndUserId(Long careerId, Long userId);
+
+    void enrollStudent(Long courseId, Long userId);
+    void unenrollStudent(Long courseId, Long userId);
+
 }

@@ -7,12 +7,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.una.programmingIII.Assignment_Manager.Dto.CourseDto;
 import org.una.programmingIII.Assignment_Manager.Model.Course;
+import org.una.programmingIII.Assignment_Manager.Model.User;
 import org.una.programmingIII.Assignment_Manager.Repository.CourseRepository;
+import org.una.programmingIII.Assignment_Manager.Repository.UserRepository;
 import org.una.programmingIII.Assignment_Manager.Service.CourseService;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
+import org.una.programmingIII.Assignment_Manager.Service.UserService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,12 +23,16 @@ import java.util.stream.Collectors;
 @Service
 public class CourseServiceImplementation implements CourseService {
 
-    @Autowired
-    private CourseRepository courseRepository;
-    private final GenericMapper<Course, CourseDto> courseMapper;
 
-    public CourseServiceImplementation(GenericMapperFactory mapperFactory) {
+    private final CourseRepository courseRepository;
+    private final GenericMapper<Course, CourseDto> courseMapper;
+    private final UserRepository userRepository;
+
+    @Autowired
+    public CourseServiceImplementation(GenericMapperFactory mapperFactory, UserRepository userRepository, CourseRepository courseRepository) {
         this.courseMapper = mapperFactory.createMapper(Course.class, CourseDto.class);
+        this.userRepository = userRepository;
+        this.courseRepository = courseRepository;
     }
 
     @Override
@@ -45,8 +52,9 @@ public class CourseServiceImplementation implements CourseService {
     @Override
     public Map<String, Object> getCourses(int page, int size, int limit) {
         Page<Course> coursePage = courseRepository.findAll(PageRequest.of(page, size));
+
         coursePage.forEach(course -> {
-            course.setStudents(limitListOrDefault(course.getStudents(), limit));
+            course.setStudents(limitSetOrDefault(course.getStudents(), limit));
         });
 
         Map<String, Object> response = new HashMap<>();
@@ -90,6 +98,47 @@ public class CourseServiceImplementation implements CourseService {
     }
 
     @Override
+    public List<CourseDto> findCoursesEnrolledByStudentId(Long studentId) {
+        return courseRepository.findCoursesEnrolledByStudentId(studentId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseDto> findAvailableCoursesByCareerIdAndUserId(Long careerId, Long userId) {
+        return courseRepository.findAvailableCoursesByCareerIdAndUserId(careerId, userId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void enrollStudent(Long courseId, Long userId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with id " + courseId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
+
+        course.getStudents().add(user); // Añadir el estudiante al curso
+        courseRepository.save(course); // Guardar el curso actualizado
+    }
+
+    @Override
+    public void unenrollStudent(Long courseId, Long userId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with id " + courseId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
+
+        course.getStudents().remove(user);
+        courseRepository.save(course);
+    }
+
+
+    @Override
     public List<CourseDto> getCoursesByCareerId(Long careerId) {
         return courseRepository.findByCareerId(careerId)
                 .stream()
@@ -114,5 +163,15 @@ public class CourseServiceImplementation implements CourseService {
         courseDto.setStudentsId(usersId);
         courseDto.setProfessorId(course.getProfessor().getId());
         return courseDto;
+    }
+
+    private Set<User> limitSetOrDefault(Set<User> originalSet, int limit) {
+        if (originalSet.size() <= limit) {
+            return originalSet;
+        }
+
+        return originalSet.stream()
+                .limit(limit)
+                .collect(Collectors.toSet());
     }
 }
