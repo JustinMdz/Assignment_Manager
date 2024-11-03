@@ -7,12 +7,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.una.programmingIII.Assignment_Manager.Dto.AssignmentDto;
 import org.una.programmingIII.Assignment_Manager.Dto.SubmissionDto;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
+import org.una.programmingIII.Assignment_Manager.Model.Assignment;
 import org.una.programmingIII.Assignment_Manager.Model.Submission;
 import org.una.programmingIII.Assignment_Manager.Repository.SubmissionRepository;
+import org.una.programmingIII.Assignment_Manager.Service.AssignmentService;
 import org.una.programmingIII.Assignment_Manager.Service.SubmissionService;
 
 import java.util.*;
@@ -22,13 +25,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class SubmissionServiceImplementation implements SubmissionService {
 
+    private final AssignmentService assignmentService;
     private final SubmissionRepository submissionRepository;
     private final GenericMapper<Submission, SubmissionDto> submissionMapper;
+    private final GenericMapper<Assignment, AssignmentDto> assignmentMapper;
 
     @Autowired
-    public SubmissionServiceImplementation(SubmissionRepository repository, GenericMapperFactory mapperFactory) {
+    public SubmissionServiceImplementation(AssignmentService assignmentService, SubmissionRepository repository, GenericMapperFactory mapperFactory) {
+        this.assignmentService = assignmentService;
         this.submissionRepository = repository;
         this.submissionMapper = mapperFactory.createMapper(Submission.class, SubmissionDto.class);
+        this.assignmentMapper = mapperFactory.createMapper(Assignment.class, AssignmentDto.class);
     }
 
     @Override
@@ -76,6 +83,11 @@ public class SubmissionServiceImplementation implements SubmissionService {
         return response;
     }
 
+    @Override
+    public List<SubmissionDto> getSubmissionsByAssignmentId(Long assignmentId) {
+        List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId);
+        return submissions.stream().map(submissionMapper::convertToDTO).collect(Collectors.toList());
+    }
 
     @Override
     public Page<SubmissionDto> getPageSubmissions(Pageable pageable) {
