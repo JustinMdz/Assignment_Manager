@@ -136,6 +136,22 @@ public class CourseServiceImplementation implements CourseService {
         courseRepository.save(course);
     }
 
+    @Override
+    public List<CourseDto> findAvailableCoursesByCareerIdUserIdAndProfessorId(Long professorId, Long studentId) {
+        return courseRepository.findAvailableCoursesByCareerIdUserIdAndProfessorId(professorId, studentId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseDto> findCoursesEnrolledByStudentIdAAndProfessorIs(Long professorId, Long studentId) {
+        return courseRepository.findCoursesEnrolledByStudentIdAAndProfessorIs(professorId, studentId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public List<CourseDto> getCoursesByCareerId(Long careerId) {

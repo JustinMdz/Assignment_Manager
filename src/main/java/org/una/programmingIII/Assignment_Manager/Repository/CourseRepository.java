@@ -27,4 +27,17 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findAvailableCoursesByCareerIdAndUserId(@Param("careerId") Long careerId, @Param("userId") Long userId);
 
 
+    @Query(value = "SELECT c.* FROM courses c " +
+            "LEFT JOIN course_users cu ON c.id = cu.course_id " +
+            "AND cu.user_id = :studentId " +
+            "WHERE cu.user_id IS NULL AND c.professor_id = :professorId",
+            nativeQuery = true)
+
+    List<Course> findAvailableCoursesByCareerIdUserIdAndProfessorId(@Param("professorId") Long professorId,@Param("studentId") Long studentId);
+
+    @Query(value = "SELECT c.* FROM courses c JOIN course_users cu ON c.id = cu.course_id WHERE cu.user_id = :studentId AND c.professor_id = :professorId",
+            nativeQuery = true)
+    List<Course> findCoursesEnrolledByStudentIdAAndProfessorIs(@Param("professorId") Long professorId,@Param("studentId") Long studentId);
+
+
 }

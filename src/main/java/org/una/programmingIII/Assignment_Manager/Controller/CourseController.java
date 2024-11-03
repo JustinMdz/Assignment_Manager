@@ -233,5 +233,29 @@ public class CourseController {
         }
     }
 
+    @GetMapping("/available/professor/{professorId}/student/{studentId}")
+    public ResponseEntity<?> findAvailableCoursesByCareerIdUserIdAndProfessorId(
+            @PathVariable Long professorId,
+            @PathVariable Long studentId) {
+        try {
+            List<CourseDto> courses = courseService.findAvailableCoursesByCareerIdUserIdAndProfessorId(professorId, studentId);
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/enrolled/professor/{professorId}/student/{studentId}")
+    public ResponseEntity<?> findCoursesEnrolledByStudentIdAAndProfessorIs(
+            @PathVariable Long professorId,
+            @PathVariable Long studentId) {
+        try {
+            List<CourseDto> courses = courseService.findCoursesEnrolledByStudentIdAAndProfessorIs(professorId, studentId);
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }

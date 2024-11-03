@@ -33,4 +33,8 @@ public interface CourseService {
     void enrollStudent(Long courseId, Long userId);
     void unenrollStudent(Long courseId, Long userId);
 
+    List<CourseDto> findAvailableCoursesByCareerIdUserIdAndProfessorId (Long professorId, Long studentId);
+
+    List<CourseDto> findCoursesEnrolledByStudentIdAAndProfessorIs (Long professorId, Long studentId);
+
 }
