@@ -96,23 +96,28 @@ public class AssignmentServiceImplementation implements AssignmentService {
         newAssignment.setFiles(combinedFiles);
         return Optional.ofNullable(assignmentMapper.convertToDTO(assignmentRepository.save(newAssignment)));
     }
+
     @Override
     public List<AssignmentDto> findAllByCourseId(Long courseId) {
         List<Assignment> assignments = assignmentRepository.findAllByCourseId(courseId);
         return assignments.stream().map(this::convertToDto).collect(Collectors.toList());
     }
+
     @Override
-    public AssignmentDto findByCourseIdAndAddress(Long courseId, String address) {
+    public List<AssignmentDto> findByCourseIdAndAddress(Long courseId, String address) {
         if (courseId == null || address == null) {
             throw new IllegalArgumentException("CourseId and address must not be null");
         }
 
-Assignment assignment = assignmentRepository.findByCourseIdAndAddress(courseId, address);
-if (assignment == null) {
-    throw new ElementNotFoundException("Assignment not found with courseId: " + courseId + " and address: " + address);
-}
-return convertToDto(assignment);
+        List<Assignment> assignment = assignmentRepository.findByCourseIdAndAddress(courseId, address);
+        if (assignment == null) {
+            throw new ElementNotFoundException("Assignment not found with courseId: " + courseId + " and address: " + address);
+        }
+        List<AssignmentDto> assignmentDto= new ArrayList<>();
+        assignment.forEach(assignment1 -> assignmentDto.add(convertToDto(assignment1)));
+        return assignmentDto;
     }
+
     private <T> List<T> limitListOrDefault(List<T> list, int limit) {
         return list == null ? new ArrayList<>() : limitList(list, limit);
     }

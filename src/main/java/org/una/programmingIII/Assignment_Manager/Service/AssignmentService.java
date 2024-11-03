@@ -25,6 +25,6 @@ public interface AssignmentService {
 
     void insertFileToAssignment(Long id, File file);
     List<AssignmentDto> findAllByCourseId(Long courseId);
-    AssignmentDto findByCourseIdAndAddress(Long courseId, String address);
+    List<AssignmentDto> findByCourseIdAndAddress(Long courseId, String address);
 
 }

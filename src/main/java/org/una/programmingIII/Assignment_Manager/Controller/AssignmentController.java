@@ -21,6 +21,7 @@ import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Service.AssignmentService;
 import org.una.programmingIII.Assignment_Manager.Service.FileService;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -111,7 +112,7 @@ public class AssignmentController {
     @GetMapping("/getByCourseIdAndAddress/{courseId}/{address}")
     public ResponseEntity<?> getAssignmentByCourseIdAndAddress(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "address") String address) {
         try {
-            AssignmentDto assignmentDto = assignmentService.findByCourseIdAndAddress(courseId, address);
+            List<AssignmentDto> assignmentDto = assignmentService.findByCourseIdAndAddress(courseId, address);
             return new ResponseEntity<>(assignmentDto, HttpStatus.OK);
         } catch (ElementNotFoundException ex) {
             return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
