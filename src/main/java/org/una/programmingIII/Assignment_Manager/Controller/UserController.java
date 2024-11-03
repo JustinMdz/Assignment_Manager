@@ -145,7 +145,7 @@ public class UserController {
         } catch (BlankInputException e) {
             return new ResponseEntity<>(new CustomErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value()), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(new CustomErrorResponse("Internal server error (" + e.getMessage()+")", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error (" + e.getMessage() + ")", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -184,4 +184,27 @@ public class UserController {
     public UserDto activarUsuario(@PathVariable Long id) {
         return userService.activateUser(id);
     }
+
+
+    @Operation(summary = "Get students by career ID", description = "Fetches students associated with a given career ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Students retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "No students found for the specified career ID",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
+    @GetMapping("/students/byCareerId/{id}")
+    public ResponseEntity<?> findStudentsByCareerId(@PathVariable Long id) {
+        try {
+            List<UserDto> students = userService.findStudentsByCareerId(id);
+            return new ResponseEntity<>(students, HttpStatus.OK);
+        } catch (ElementNotFoundException ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }

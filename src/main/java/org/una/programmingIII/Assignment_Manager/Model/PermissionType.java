@@ -9,5 +9,6 @@ public enum PermissionType {
     MANAGE_USERS,
     VIEW_REPORTS,
     EDIT_PROFILE,
-    PROFESSOR
+    PROFESSOR,
+    TAKE_CLASSES
 }

@@ -14,4 +14,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT u.* FROM users u JOIN user_permissions up ON u.id = up.user_id JOIN permissions p ON up.permission_id = p.id WHERE p.name = :permission", nativeQuery = true)
     List<User> findByPermissionName(@Param("permission") String permission);
+
+    @Query(value = "SELECT u.* FROM users u JOIN user_permissions up " +
+            "ON u.id = up.user_id JOIN permissions p ON up.permission_id = p.id " +
+            "WHERE p.name = 'TAKE_CLASSES' AND u.career_id=:careerId", nativeQuery = true)
+    List<User> findStudentsByCareerId(@Param("careerId") Long careerId);
 }

@@ -25,18 +25,17 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImplementation implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncryptionService passwordEncryptionService;
-
+    private final UserRepository userRepository;
+    private final PasswordEncryptionService passwordEncryptionService;
     private final GenericMapper<User, UserDto> userMapper;
     private final GenericMapper<User, UserInput> userInputMapper;
 
-    public UserServiceImplementation(GenericMapperFactory mapperFactory) {
+    @Autowired
+    public UserServiceImplementation(GenericMapperFactory mapperFactory, PasswordEncryptionService passwordEncryptionService, UserRepository userRepository) {
         this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
         this.userInputMapper = mapperFactory.createMapper(User.class, UserInput.class);
+        this.userRepository = userRepository;
+        this.passwordEncryptionService = passwordEncryptionService;
     }
 
     @Override
@@ -147,6 +146,16 @@ public class UserServiceImplementation implements UserService {
         List<UserDto> userDtos = new ArrayList<>();
         for (User user : users) {
             userDtos.add(userMapper.convertToDTO(user));
+        }
+        return userDtos;
+    }
+
+    @Override
+    public List<UserDto> findStudentsByCareerId(Long careerId) {
+      List<User> students = userRepository.findStudentsByCareerId(careerId);
+        List<UserDto> userDtos = new ArrayList<>();
+        for (User student : students) {
+            userDtos.add(userMapper.convertToDTO(student));
         }
         return userDtos;
     }
