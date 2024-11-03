@@ -1,6 +1,7 @@
 package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 
 
+import lombok.NoArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,10 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
+import org.una.programmingIII.Assignment_Manager.Dto.AssignmentDto;
+import org.una.programmingIII.Assignment_Manager.Dto.CourseContentDto;
 import org.una.programmingIII.Assignment_Manager.Dto.FileDto;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
+import org.una.programmingIII.Assignment_Manager.Model.CourseContent;
 import org.una.programmingIII.Assignment_Manager.Model.File;
 import org.una.programmingIII.Assignment_Manager.Repository.FileRepository;
 import org.una.programmingIII.Assignment_Manager.Service.AssignmentService;
@@ -39,19 +43,22 @@ public class FileServiceImplementation implements FileService {
     private final GenericMapper<File, FileDto> fileMapper;
     @Value("${file.upload-dir}")
     private String uploadDir;
-private final AssignmentService assignmentService;
-private final CourseContentService courseContentService;
+    private final AssignmentService assignmentService;
+    private final CourseContentService courseContentService;
+
     @Autowired
-    public FileServiceImplementation(FileRepository repository, GenericMapperFactory mapperFactory,AssignmentService assignmentService,CourseContentService courseContentService) {
+    public FileServiceImplementation(FileRepository repository, GenericMapperFactory mapperFactory, AssignmentService assignmentService, CourseContentService courseContentService) {
         this.fileRepository = repository;
         this.fileMapper = mapperFactory.createMapper(File.class, FileDto.class);
         this.assignmentService = assignmentService;
         this.courseContentService = courseContentService;
     }
+
     public FileDto createFile(FileDto fileDto) {
         File fileEntity = fileRepository.save(fileMapper.convertToEntity(fileDto));
         return fileMapper.convertToDTO(fileEntity);
     }
+
     private Map<Long, String> uniqueFileNames = new ConcurrentHashMap<>();
 
     @Override
@@ -142,16 +149,45 @@ private final CourseContentService courseContentService;
     }
 
     @Override
-    public void deleteFile(FileDto fileDto) throws IOException {
-        Path fileLocation = Paths.get(fileDto.getFilePath()).toAbsolutePath().normalize();
+    public void deleteFile(Long fileId) throws IOException {
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new ElementNotFoundException("File not found"));
+        Path fileLocation = Paths.get(file.getFilePath()).toAbsolutePath().normalize();
         Files.delete(fileLocation);
-        fileRepository.deleteById(fileDto.getId());
+
+        CourseContent courseContent = file.getCourseContent();
+
+
+        fileRepository.deleteById(file.getId());
+if (courseContent != null && (courseContent.getFiles() == null || courseContent.getFiles().isEmpty())) {
+    courseContentService.delete(courseContent.getId());
+}
     }
+
+    @Override
+    public void deleteFilesAndAssignment(Long assignmentId) {
+        AssignmentDto assignmentDto = assignmentService.findById(assignmentId);
+        if (assignmentDto.getFiles().isEmpty()) {
+            assignmentService.delete(assignmentId);
+        } else {
+            assignmentDto.getFiles().forEach(fileDto -> {
+                try {
+                    deleteFile(fileDto.getId());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            assignmentService.delete(assignmentId);
+        }
+
+    }
+
     @Override
     public FileDto getFile(Long id) {
         File file = fileRepository.findById(id).orElse(null);
         return fileMapper.convertToDTO(file);
     }
+
     @Override
     public FileDto getFileBySubmission(Long id) {
         File file = fileRepository.findBySubmissionId(id);

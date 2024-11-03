@@ -82,4 +82,19 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    @Operation(summary = "Delete a File", description = "This endpoint deletes a File by id.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "File deleted successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteFile(@PathVariable Long id) {
+        try {
+            fileService.deleteFile(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomErrorResponse("Error deleting File", HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        }
+    }
 }

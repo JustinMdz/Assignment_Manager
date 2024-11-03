@@ -19,19 +19,22 @@ import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Dto.Input.AssignmentInput;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Service.AssignmentService;
+import org.una.programmingIII.Assignment_Manager.Service.FileService;
 
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/assignments")
+@RequestMapping("/api/assignments")
 public class AssignmentController {
     private final GenericMapper< AssignmentDto,AssignmentInput> assignmentMapper;
     private final AssignmentService assignmentService;
+    private final FileService fileService;
     @Autowired
-    AssignmentController(AssignmentService assignmentService,  GenericMapperFactory mapperFactory) {
+    AssignmentController(AssignmentService assignmentService,  GenericMapperFactory mapperFactory, FileService fileService) {
         this.assignmentService = assignmentService;
         this.assignmentMapper = mapperFactory.createMapper(AssignmentDto.class, AssignmentInput.class);
+        this.fileService = fileService;
     }
 
     @Operation(summary = "Get assignments as a map", description = "Retrieves assignments in a paginated format as a map.")
@@ -164,7 +167,7 @@ public class AssignmentController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAssignment(@PathVariable Long id) {
-        assignmentService.delete(id);
+        fileService.deleteFilesAndAssignment(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
