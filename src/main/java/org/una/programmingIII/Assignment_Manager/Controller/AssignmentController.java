@@ -127,6 +127,7 @@ public class AssignmentController {
     @PostMapping("/create")
     public ResponseEntity<?> createAssignment(@RequestBody  AssignmentInput assignmentInput) {
         try {
+
             AssignmentDto createdAssignment = assignmentService.create(assignmentMapper.convertToEntity(assignmentInput));
             return new ResponseEntity<>(createdAssignment, HttpStatus.CREATED);
         } catch (BlankInputException e) {

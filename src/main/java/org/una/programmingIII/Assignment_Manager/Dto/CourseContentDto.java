@@ -11,15 +11,15 @@ import org.una.programmingIII.Assignment_Manager.Model.File;
 
 import java.time.LocalDate;
 import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseContentDto {
     private Long id;
-    private String title;
-    private String description;
-    private Course course;
-    private List<FileDto> files;
+    private Long courseId;
+    private String address;
     private LocalDate createdAt;
     private LocalDate updatedAt;
+    private List<FileDto> files;
 }

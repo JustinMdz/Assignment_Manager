@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.una.programmingIII.Assignment_Manager.Dto.CourseContentDto;
+import org.una.programmingIII.Assignment_Manager.Dto.CourseDto;
 import org.una.programmingIII.Assignment_Manager.Dto.Input.CourseContentInput;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
@@ -18,7 +19,7 @@ import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Service.CourseContentService;
 
 @RestController
-@RequestMapping("/courseContents")
+@RequestMapping("/api/courseContents")
 public class CourseContentController {
     private final CourseContentService courseContentService;
     private final GenericMapper<CourseContentDto, CourseContentInput> courseContentMapper;
@@ -78,8 +79,10 @@ public class CourseContentController {
     })
     @PostMapping("/")
     public ResponseEntity<?> create(@RequestBody CourseContentInput courseContentInput) {
+    System.out.println("Received CourseContentInput: " + courseContentInput);
         try {
-            return new ResponseEntity<>(courseContentService.create(courseContentMapper.convertToEntity(courseContentInput)), HttpStatus.CREATED);
+            CourseContentDto courseDto = courseContentMapper.convertToEntity(courseContentInput);
+            return new ResponseEntity<>(courseContentService.create(courseDto), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
         }

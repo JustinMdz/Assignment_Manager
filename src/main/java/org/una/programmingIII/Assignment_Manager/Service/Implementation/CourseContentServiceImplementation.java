@@ -57,7 +57,7 @@ public CourseContentDto update(CourseContentDto courseContentDto, Long id) {
 }
 
 public List<CourseContentDto> findAllByCourseId(Long courseId) {
-    List<CourseContent> courseContents = (List<CourseContent>) courseContentRepository.findAllByCourseId(courseId);
+    List<CourseContent> courseContents =  courseContentRepository.findAllByCourseId(courseId);
     List<CourseContentDto> courseContentDtoList = new ArrayList<>();
     for (CourseContent courseContent : courseContents) {
         courseContentDtoList.add(courseContentMapper.convertToDTO(courseContent));

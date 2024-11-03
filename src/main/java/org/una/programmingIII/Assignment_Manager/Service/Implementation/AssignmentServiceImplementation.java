@@ -70,7 +70,11 @@ public class AssignmentServiceImplementation implements AssignmentService {
 
     @Override
     public AssignmentDto create(AssignmentDto assignmentDto) {
-        return assignmentMapper.convertToDTO(assignmentRepository.save(assignmentMapper.convertToEntity(assignmentDto)));
+        assignmentDto.setCreatedAt(LocalDate.now());
+        assignmentDto.setUpdatedAt(LocalDate.now());
+        Assignment assignment = assignmentMapper.convertToEntity(assignmentDto);
+        assignment = assignmentRepository.save(assignment);
+        return assignmentMapper.convertToDTO(assignment);
     }
 
     @Override
@@ -91,7 +95,7 @@ public class AssignmentServiceImplementation implements AssignmentService {
     }
     @Override
     public List<AssignmentDto> findAllByCourseId(Long courseId) {
-        List<Assignment> assignments = (List<Assignment>) assignmentRepository.findAllByCourseId(courseId);
+        List<Assignment> assignments = assignmentRepository.findAllByCourseId(courseId);
         return assignments.stream().map(this::convertToDto).collect(Collectors.toList());
     }
     @Override

@@ -19,7 +19,7 @@ public class AssignmentDto {
     private String description;
     private String address;
     private LocalDate dueDate;
-    private CourseDto course;
+    private Long courseId;
     private List<FileDto> files;
     private LocalDate createdAt;
     private LocalDate updatedAt;

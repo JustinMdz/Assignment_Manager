@@ -29,7 +29,9 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class FileServiceImplementation implements FileService {
@@ -50,11 +52,16 @@ private final CourseContentService courseContentService;
         File fileEntity = fileRepository.save(fileMapper.convertToEntity(fileDto));
         return fileMapper.convertToDTO(fileEntity);
     }
+    private Map<Long, String> uniqueFileNames = new ConcurrentHashMap<>();
+
     @Override
-    public void saveFileChunk(MultipartFile fileChunk, Long  fileId, int chunkNumber, int totalChunks) throws IOException {
-        FileDto fileDto = fileMapper.convertToDTO(fileRepository.findById(fileId).orElseThrow(() -> new ElementNotFoundException("File not found")));
-        String uniqueFileName = UUID.randomUUID().toString() + "_" + fileDto.getName();
-        Path fileChunkStorageLocation = Paths.get(uploadDir, uniqueFileName+ "_chunks").toAbsolutePath().normalize();
+    public void saveFileChunk(MultipartFile fileChunk, Long fileId, int chunkNumber, int totalChunks) throws IOException {
+        FileDto fileDto = fileMapper.convertToDTO(fileRepository.findById(fileId)
+                .orElseThrow(() -> new ElementNotFoundException("File not found")));
+
+        String uniqueFileName = uniqueFileNames.computeIfAbsent(fileId, id -> UUID.randomUUID().toString() + "_" + fileDto.getName());
+
+        Path fileChunkStorageLocation = Paths.get(uploadDir, uniqueFileName + "_chunks").toAbsolutePath().normalize();
         Files.createDirectories(fileChunkStorageLocation);
 
         Path targetLocation = fileChunkStorageLocation.resolve(uniqueFileName + ".part" + chunkNumber);
@@ -62,12 +69,13 @@ private final CourseContentService courseContentService;
 
         if (chunkNumber == totalChunks) {
             saveFile(fileDto, totalChunks, fileChunkStorageLocation, uniqueFileName);
+            uniqueFileNames.remove(fileId);
         }
     }
 
     @Override
     @Transactional
-    public void saveFile(FileDto  fileDto, int totalChunks, Path fileChunkStorageLocation,String uniqueFileName) throws IOException {
+    public void saveFile(FileDto fileDto, int totalChunks, Path fileChunkStorageLocation, String uniqueFileName) throws IOException {
         Path finalFileLocation = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(uniqueFileName);
         try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(finalFileLocation))) {
             for (int i = 1; i <= totalChunks; i++) {
@@ -77,19 +85,19 @@ private final CourseContentService courseContentService;
         }
 
         FileUtils.deleteDirectory(fileChunkStorageLocation.toFile());
-
         fileDto.setFilePath(finalFileLocation.toString());
         fileDto.setFileSize(Files.size(finalFileLocation));
         fileDto.setProvisionalName(uniqueFileName);
-     File fileEntity =fileRepository.save(fileMapper.convertToEntity(fileDto)) ;
 
-       if (fileDto.getCourseContentId()!=null){
-              courseContentService.insertFileToCourseContent(fileDto.getCourseContentId(), fileEntity);
-       }
+        File fileEntity = fileRepository.save(fileMapper.convertToEntity(fileDto));
 
-         if (fileDto.getAssignmentId()!=null){
-                  assignmentService.insertFileToAssignment(fileDto.getAssignmentId(), fileEntity);
-         }
+        if (fileDto.getCourseContentId() != null) {
+            courseContentService.insertFileToCourseContent(fileDto.getCourseContentId(), fileEntity);
+        }
+
+        if (fileDto.getAssignmentId() != null) {
+            assignmentService.insertFileToAssignment(fileDto.getAssignmentId(), fileEntity);
+        }
     }
 
     @Override
