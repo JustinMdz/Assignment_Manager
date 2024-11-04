@@ -30,7 +30,7 @@ public class AnswerAIController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
 })
-@GetMapping("/findAll")
+@GetMapping("/")
 public ResponseEntity<?> findAll() {
     try {
         return new ResponseEntity<>(answerAIService.findAll(), HttpStatus.OK);
