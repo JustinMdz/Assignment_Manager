@@ -13,8 +13,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findByCareerId(Long careerId);
 
     @Query(value = "SELECT c.* FROM courses c " +
-            "JOIN course_student cu ON c.id = cu.course_id " +
-            "JOIN users u ON cu.student_id = u.id " +
+            "JOIN course_users cu ON c.id = cu.course_id " +
+            "JOIN users u ON cu.user_id = u.id " +
             "WHERE u.id = :studentId",
             nativeQuery = true)
     List<Course> findCoursesEnrolledByStudentId(@Param("studentId") Long studentId);
