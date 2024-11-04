@@ -89,11 +89,17 @@ public class CourseServiceImplementation implements CourseService {
 
     @Override
     public void delete(Long id) {
-        if (courseRepository.existsById(id)) {
-            courseRepository.deleteById(id);
+        Optional<Course> course = courseRepository.findById(id);
+        if (course.isPresent()) {
+            course.get().setCareer(null);
+            course.get().setProfessor(null);
+            course.get().getStudents().clear();
+            courseRepository.save(course.get());
+            courseRepository.delete(course.get());
         } else {
             throw new EntityNotFoundException("Course not found with id " + id);
         }
+
     }
 
     @Override

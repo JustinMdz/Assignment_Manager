@@ -28,7 +28,7 @@ public class Course {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "career_id")
     private Career career;
 
