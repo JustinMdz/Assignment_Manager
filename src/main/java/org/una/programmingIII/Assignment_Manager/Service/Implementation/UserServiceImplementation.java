@@ -1,5 +1,6 @@
 package org.una.programmingIII.Assignment_Manager.Service.Implementation;
 
+import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -119,14 +120,15 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public Optional<UserDto> updateUser(Long id, UserInput userInput) {
+        User user = userRepository.findByEmail(userInput.getEmail());
         return userRepository.findById(id)
                 .map(existingUser -> {
                     User updatedUser = userInputMapper.convertToEntity(userInput);
                     updatedUser.setId(id);
                     updatedUser.setCreatedAt(existingUser.getCreatedAt());
                     updatedUser.setLastUpdate(existingUser.getLastUpdate());
-                    updatedUser.setPassword(passwordEncryptionService.encodePassword(userInput.getPassword()));
-
+                    updatedUser.setPassword(user.getPassword());
+                    updatedUser.setActive(user.isActive());
                     User savedUser = userRepository.save(updatedUser);
                     return Optional.of(userMapper.convertToDTO(savedUser));
                 })
@@ -134,8 +136,15 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new OpenApiResourceNotFoundException("User not found"));
+
+        // Limpiar las relaciones ManyToMany
+        user.getPermissions().clear();
+        userRepository.save(user);
+
+        // Eliminar el usuario
+        userRepository.delete(user);
     }
 
     @Override
