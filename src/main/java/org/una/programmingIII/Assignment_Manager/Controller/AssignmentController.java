@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.una.programmingIII.Assignment_Manager.Dto.AssignmentDto;
+import org.una.programmingIII.Assignment_Manager.Dto.EmailDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
@@ -19,6 +20,7 @@ import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Dto.Input.AssignmentInput;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Service.AssignmentService;
+import org.una.programmingIII.Assignment_Manager.Service.EmailService;
 import org.una.programmingIII.Assignment_Manager.Service.FileService;
 
 import java.util.List;
@@ -31,11 +33,14 @@ public class AssignmentController {
     private final GenericMapper< AssignmentDto,AssignmentInput> assignmentMapper;
     private final AssignmentService assignmentService;
     private final FileService fileService;
+
+    private EmailService emailService;
     @Autowired
-    AssignmentController(AssignmentService assignmentService,  GenericMapperFactory mapperFactory, FileService fileService) {
+    AssignmentController(AssignmentService assignmentService,  GenericMapperFactory mapperFactory, FileService fileService, EmailService emailService) {
         this.assignmentService = assignmentService;
         this.assignmentMapper = mapperFactory.createMapper(AssignmentDto.class, AssignmentInput.class);
         this.fileService = fileService;
+        this.emailService = emailService;
     }
 
     @Operation(summary = "Get assignments as a map", description = "Retrieves assignments in a paginated format as a map.")
@@ -171,4 +176,19 @@ public class AssignmentController {
         fileService.deleteFilesAndAssignment(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+@Operation(summary = "Send email", description = "Sends an email to a student or professor.")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Email sent successfully"),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+})
+@PostMapping("/sendEmail")
+public ResponseEntity<?> sendEmail(@RequestBody EmailDto emailDto) {
+    try {
+        emailService.sendEmailToStudent(emailDto.getEmail(), emailDto.getSubject(), emailDto.getMessage());
+        return new ResponseEntity<>(HttpStatus.OK);
+    } catch (Exception e) {
+        return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
 }

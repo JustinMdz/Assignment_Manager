@@ -22,6 +22,7 @@ import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
 import org.una.programmingIII.Assignment_Manager.Model.User;
 import org.una.programmingIII.Assignment_Manager.Service.AuthenticationService;
+import org.una.programmingIII.Assignment_Manager.Service.EmailService;
 import org.una.programmingIII.Assignment_Manager.Service.JWTService;
 
 @RestController
@@ -31,7 +32,8 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final JWTService jwtService;
     private final GenericMapper<User, UserDto> userMapper;
-
+    @Autowired
+    private EmailService emailService;
     @Autowired
     AuthController(AuthenticationService authenticationService, JWTService jwtService, GenericMapperFactory mapperFactory) {
         this.authenticationService = authenticationService;
