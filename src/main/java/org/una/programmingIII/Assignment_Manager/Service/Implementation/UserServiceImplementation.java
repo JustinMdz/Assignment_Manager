@@ -12,8 +12,11 @@ import org.una.programmingIII.Assignment_Manager.Exception.DuplicateEmailExcepti
 import org.una.programmingIII.Assignment_Manager.Exception.ElementNotFoundException;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapper;
 import org.una.programmingIII.Assignment_Manager.Mapper.GenericMapperFactory;
+import org.una.programmingIII.Assignment_Manager.Model.Career;
 import org.una.programmingIII.Assignment_Manager.Model.User;
+import org.una.programmingIII.Assignment_Manager.Repository.CareerRepository;
 import org.una.programmingIII.Assignment_Manager.Repository.UserRepository;
+import org.una.programmingIII.Assignment_Manager.Service.CareerService;
 import org.una.programmingIII.Assignment_Manager.Service.PasswordEncryptionService;
 import org.una.programmingIII.Assignment_Manager.Service.UserService;
 
@@ -29,12 +32,14 @@ public class UserServiceImplementation implements UserService {
     private final PasswordEncryptionService passwordEncryptionService;
     private final GenericMapper<User, UserDto> userMapper;
     private final GenericMapper<User, UserInput> userInputMapper;
+    private final CareerRepository careerRepository;
 
     @Autowired
-    public UserServiceImplementation(GenericMapperFactory mapperFactory, PasswordEncryptionService passwordEncryptionService, UserRepository userRepository) {
+    public UserServiceImplementation(GenericMapperFactory mapperFactory, PasswordEncryptionService passwordEncryptionService, UserRepository userRepository, CareerRepository careerRepository) {
         this.userMapper = mapperFactory.createMapper(User.class, UserDto.class);
         this.userInputMapper = mapperFactory.createMapper(User.class, UserInput.class);
         this.userRepository = userRepository;
+        this.careerRepository = careerRepository;
         this.passwordEncryptionService = passwordEncryptionService;
     }
 
@@ -95,9 +100,15 @@ public class UserServiceImplementation implements UserService {
         if (userRepository.findByEmail(userInput.getEmail()) != null) {
             throw new DuplicateEmailException("Email " + userInput.getEmail() + " is already in use.");
         }
-
-
         User user = userInputMapper.convertToEntity(userInput);
+        if (userInput.getId() != null) {
+            Career career = careerRepository.getById(userInput.getCareerId());
+            if (career != null) {
+                user.setCareer(career);
+            } else {
+                user.setCareer(null);
+            }
+        }
         user.setPassword(passwordEncryptionService.encodePassword(userInput.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setLastUpdate(LocalDateTime.now());
