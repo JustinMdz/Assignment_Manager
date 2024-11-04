@@ -47,7 +47,7 @@ public class SubmissionServiceImplementation implements SubmissionService {
     @Override
     public Optional<SubmissionDto> findById(Long id) {
         return Optional.of(submissionMapper.convertToDTO(submissionRepository.findById(id).orElseThrow(()
-                -> new ElementNotFoundException("FeedingSchedule not found with id: " + id))));
+                -> new ElementNotFoundException("Submission not found with id: " + id))));
     }
 
     @Override
@@ -93,6 +93,12 @@ public class SubmissionServiceImplementation implements SubmissionService {
     public Page<SubmissionDto> getPageSubmissions(Pageable pageable) {
         Page<Submission> submissionPage = submissionRepository.findAll(pageable);
         return submissionPage.map(submissionMapper::convertToDTO);
+    }
+
+    @Override
+    public Optional<SubmissionDto> getSubmissionByAssignmentIdAndStudentId(Long assignmentId, Long userId) {
+        return Optional.of(submissionMapper.convertToDTO(submissionRepository.findByAssignmentIdAndStudentId(assignmentId,userId).orElseThrow(()
+                -> new ElementNotFoundException("Submission not found with user id: " + userId + " and assignment id: " + assignmentId))));
     }
 
     private <T> List<T> limitListOrDefault(List<T> list, int limit) {

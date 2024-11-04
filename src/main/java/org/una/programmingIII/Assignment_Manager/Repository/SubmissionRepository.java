@@ -8,6 +8,7 @@ import org.una.programmingIII.Assignment_Manager.Model.Submission;
 import org.una.programmingIII.Assignment_Manager.Model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubmissionRepository extends JpaRepository<Submission,Long> {
@@ -15,5 +16,7 @@ public interface SubmissionRepository extends JpaRepository<Submission,Long> {
     @Query("SELECT s FROM Submission s WHERE s.assignment.id = :assignmentId")
     List<Submission> findByAssignmentId(@Param("assignmentId") Long assignmentId);
 
+    @Query("SELECT s FROM Submission s WHERE s.assignment.id = :assignmentId AND s.student.id = :studentId")
+    Optional<Submission> findByAssignmentIdAndStudentId(@Param("assignmentId") Long assignmentId, @Param("studentId") Long studentId);
 
 }

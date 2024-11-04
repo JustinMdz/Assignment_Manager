@@ -23,4 +23,7 @@ public interface SubmissionService {
     List<SubmissionDto> getSubmissionsByAssignmentId(Long assignmentId);
 
     Page<SubmissionDto> getPageSubmissions(Pageable pageable);
+
+    Optional<SubmissionDto> getSubmissionByAssignmentIdAndStudentId(Long assignmentId, Long userId);
+
 }

@@ -143,7 +143,6 @@ public class SubmissionController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //TODO: Implement getSubmissionsByAssignmentId method
     @Operation(summary = "Get a submission by assignment", description = "Retrieve a submission by its assignment ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Submission retrieved successfully",
@@ -159,6 +158,27 @@ public class SubmissionController {
             System.out.println("Assignment ID: " + assignmentId);
             List<SubmissionDto> submissionsDto = submissionService.getSubmissionsByAssignmentId(assignmentId);
             return new ResponseEntity<>(submissionsDto, HttpStatus.OK);
+        } catch (ElementNotFoundException ex) {
+            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Get a submission by assignment and student", description = "Retrieve a submission by its assignment and student ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Submission retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = SubmissionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Submission not found",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
+    @GetMapping("/getByAssignmentIdAndStudentId/{assignmentId}/{userId}")
+    public ResponseEntity<?> getSubmissionByAssignmentIdAndStudentId(@PathVariable Long assignmentId, @PathVariable Long userId) {
+        try {
+            Optional<SubmissionDto> submissionDto = submissionService.getSubmissionByAssignmentIdAndStudentId(assignmentId, userId);
+            return new ResponseEntity<>(submissionDto, HttpStatus.OK);
         } catch (ElementNotFoundException ex) {
             return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
