@@ -129,14 +129,18 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public UserDto activateUser(Long id) {
-        Optional<User> existingUser = userRepository.findById(id);
-        if (existingUser.isPresent()) {
-            User usuario = existingUser.get();
-            usuario.setActive(true);
-            userRepository.save(usuario);
-            return userMapper.convertToDTO(usuario);
-        } else {
-            throw new RuntimeException("Usuario no encontrado con el id: " + id);
+        try {
+            Optional<User> existingUser = userRepository.findById(id);
+            if (existingUser.isPresent()) {
+                User usuario = existingUser.get();
+                usuario.setActive(true);
+                userRepository.save(usuario);
+                return userMapper.convertToDTO(usuario);
+            } else {
+                throw new ElementNotFoundException("User with id:{" + id + "} not found");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error activating user with id: " + id, e);
         }
     }
 
@@ -152,7 +156,7 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public List<UserDto> findStudentsByCareerId(Long careerId) {
-      List<User> students = userRepository.findStudentsByCareerId(careerId);
+        List<User> students = userRepository.findStudentsByCareerId(careerId);
         List<UserDto> userDtos = new ArrayList<>();
         for (User student : students) {
             userDtos.add(userMapper.convertToDTO(student));

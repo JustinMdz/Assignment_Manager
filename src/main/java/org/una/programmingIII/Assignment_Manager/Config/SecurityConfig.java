@@ -27,14 +27,17 @@ public class SecurityConfig {
     public SecurityConfig(JWTService jwtService) {
         this.jwtService = jwtService;
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/login").permitAll();
                     auth.requestMatchers("/auth/refreshToken").permitAll();
-                    auth.requestMatchers("/api/users/create").permitAll(); //preguntar
-                    auth.requestMatchers("/hello").permitAll();
+                    auth.requestMatchers("/api/users/create").permitAll();
+                    auth.requestMatchers("/activation.html").permitAll();
+                    auth.requestMatchers("/api/users/activate/**").permitAll();
+
                     auth.anyRequest().authenticated();
                 })
 

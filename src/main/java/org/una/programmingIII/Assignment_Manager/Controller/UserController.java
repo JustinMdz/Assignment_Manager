@@ -1,7 +1,6 @@
 package org.una.programmingIII.Assignment_Manager.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.una.programmingIII.Assignment_Manager.Dto.Input.UserInput;
-import org.una.programmingIII.Assignment_Manager.Dto.UniversityDto;
 import org.una.programmingIII.Assignment_Manager.Dto.UserDto;
 import org.una.programmingIII.Assignment_Manager.Exception.BlankInputException;
 import org.una.programmingIII.Assignment_Manager.Exception.CustomErrorResponse;
@@ -138,7 +136,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody UserInput userInput) {
         try {
             UserDto createdUser = userService.createUser(userInput);
-            emailService.enviarCorreoActivacion(createdUser.getEmail(), "Subjet", createdUser.getId());
+            emailService.sendActivationEmail(createdUser.getEmail(), "Activate User Account", createdUser.getId());
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (DuplicateEmailException e) {
             return new ResponseEntity<>(new CustomErrorResponse(e.getMessage(), HttpStatus.CONFLICT.value()), HttpStatus.CONFLICT);
@@ -181,10 +179,16 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User activated successfully")
     })
     @PutMapping("/activate/{id}")
-    public UserDto activarUsuario(@PathVariable Long id) {
-        return userService.activateUser(id);
+    public ResponseEntity<UserDto> activateUser(@PathVariable Long id) {
+        try {
+            UserDto activatedUser = userService.activateUser(id);
+            return ResponseEntity.ok(activatedUser);
+        } catch (ElementNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
-
 
     @Operation(summary = "Get students by career ID", description = "Fetches students associated with a given career ID.")
     @ApiResponses(value = {
