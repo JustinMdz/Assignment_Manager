@@ -136,7 +136,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody UserInput userInput) {
         try {
             UserDto createdUser = userService.createUser(userInput);
-            emailService.sendActivationEmail(createdUser.getEmail(), "Activate User Account", createdUser.getId());
+            emailService.sendActivationEmailThread(createdUser.getEmail(), "Activate User Account", createdUser.getId());
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (DuplicateEmailException e) {
             return new ResponseEntity<>(new CustomErrorResponse(e.getMessage(), HttpStatus.CONFLICT.value()), HttpStatus.CONFLICT);
