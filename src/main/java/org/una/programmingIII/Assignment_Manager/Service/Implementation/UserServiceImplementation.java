@@ -138,12 +138,8 @@ public class UserServiceImplementation implements UserService {
     @Override
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new OpenApiResourceNotFoundException("User not found"));
-
-        // Limpiar las relaciones ManyToMany
         user.getPermissions().clear();
         userRepository.save(user);
-
-        // Eliminar el usuario
         userRepository.delete(user);
     }
 
