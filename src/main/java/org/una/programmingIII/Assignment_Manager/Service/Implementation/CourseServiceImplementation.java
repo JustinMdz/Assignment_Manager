@@ -158,6 +158,14 @@ public class CourseServiceImplementation implements CourseService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<CourseDto> findCoursesByProfessorId(Long professorId) {
+        return courseRepository.findCoursesByProfessorId(professorId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public List<CourseDto> getCoursesByCareerId(Long careerId) {
