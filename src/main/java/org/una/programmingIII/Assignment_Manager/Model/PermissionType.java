@@ -1,9 +1,6 @@
 package org.una.programmingIII.Assignment_Manager.Model;
 
 public enum PermissionType {
-
-    GLOBAL_MAINTENANCE,//QUITAR
-
     //UNIVERSITIES
     CREATE_UNIVERSITIES,
     EDIT_UNIVERSITIES,
@@ -29,14 +26,11 @@ public enum PermissionType {
     VIEW_CAREERS,
 
     //COURSES
-    CRUD_COURSES,//QUITAR
     CREATE_COURSES,
     EDIT_COURSES,
     DELETE_COURSES,
     VIEW_COURSES,
 
-    //USERS
-    MANAGE_USERS,//QUITAR
     CREATE_USERS,
     EDIT_USERS,
     DELETE_USERS,
@@ -52,15 +46,9 @@ public enum PermissionType {
     SUBMIT_ASSIGNMENTS,
     VIEW_GRADES,
 
-    //MISC
     EDIT_PROFILE,
-
     TEACH_CLASSES,
-
     SUBMIT_FEEDBACK,
-
     TAKE_CLASSES,
-
     REGISTER_STUDENT_COURSES,
-    
 }
