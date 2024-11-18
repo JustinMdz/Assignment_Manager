@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -202,15 +203,16 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(schema = @Schema(implementation = CustomErrorResponse.class)))
     })
-    @GetMapping("/students/byCareerId/{id}")
-    public ResponseEntity<?> findStudentsByCareerId(@PathVariable Long id) {
-        try {
-            List<UserDto> students = userService.findStudentsByCareerId(id);
-            return new ResponseEntity<>(students, HttpStatus.OK);
-        } catch (ElementNotFoundException ex) {
-            return new ResponseEntity<>(new CustomErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND);
-        } catch (Exception ex) {
-            return new ResponseEntity<>(new CustomErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+    @GetMapping("/studentsByCareer/{careerId}")
+    public ResponseEntity<Page<UserDto>> findStudentsByCareerId(
+            @PathVariable Long careerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserDto> studentsPage = userService.findStudentsByCareerId(careerId, pageable);
+        return new ResponseEntity<>(studentsPage, HttpStatus.OK);
     }
+
+
 }

@@ -195,13 +195,9 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public List<UserDto> findStudentsByCareerId(Long careerId) {
-        List<User> students = userRepository.findStudentsByCareerId(careerId);
-        List<UserDto> userDtos = new ArrayList<>();
-        for (User student : students) {
-            userDtos.add(userMapper.convertToDTO(student));
-        }
-        return userDtos;
+    public Page<UserDto> findStudentsByCareerId(Long careerId, Pageable pageable) {
+        Page<User> studentsPage = userRepository.findStudentsByCareerId(careerId, pageable);
+        return studentsPage.map(userMapper::convertToDTO);
     }
 
     private boolean checkImportantSpaces(UserInput userInput) {
