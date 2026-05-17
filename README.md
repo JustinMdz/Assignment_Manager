@@ -35,7 +35,7 @@ API REST construida con **Spring Boot 3.3.4** y **PostgreSQL** para la gestión 
 ### 1. Clonar
 
 ```bash
-git clone https://github.com/TU_USUARIO/Assignment_Manager.git
+git clone https://github.com/Z3E-Brian/Assignment_Manager.git
 cd Assignment_Manager
 ```
 
